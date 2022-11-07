@@ -15,7 +15,6 @@ return new class extends Migration {
             $table->bigIncrements('idSales');
             $table->unsignedBigInteger('idClients', false);
             $table->unsignedBigInteger('idSalePoints', false);
-            $table->dateTime('saleDateTime')->default(now());
             $table->dateTime('deliverDateTime')->nullable();
             $table->set('status', ['ic', 'cl', 'fs'])
                 ->default('ic')

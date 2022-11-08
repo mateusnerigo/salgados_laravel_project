@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->bigIncrements('idSalePoints');
             $table->string('salePointName', 150);
             $table->text('description')->nullable();
-            $table->boolean('isActive', 1)->default(1);
+            $table->boolean('isActive')->default(1);
             $table->timestamps();
         });
     }

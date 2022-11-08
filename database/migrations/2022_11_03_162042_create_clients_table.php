@@ -15,9 +15,9 @@ return new class extends Migration {
             $table->bigIncrements('idClients');
             $table->string('clientName', 150);
             $table->unsignedBigInteger('idSalePoints', false)->nullable();
-            $table->boolean('isActive', 1)->default(1);
+            $table->boolean('isActive')->default(1);
             $table->timestamps();
-            
+
             $table->foreign('idSalePoints')
                 ->references('idSalePoints')
                 ->on('sale_points')

@@ -18,7 +18,7 @@ class SalePointsController extends Controller {
      * Verifies the data sended and inserts a new sale point in DB if it doesn't exists
      * @param Request $request
      */
-    public function store(Request $request) {
+    public function save(Request $request) {
         // properly receive the request information
         if (!validateDataSended($request)) {
             return dataSendedErrorResponse();
@@ -34,16 +34,27 @@ class SalePointsController extends Controller {
         }
 
         // verifies if the data given matches with a sale point already created
-        if (!empty($this->getSalePointByName($requestData['salePointName']))) {
+        if (!empty($this->getSalePointByNameDiffId($requestData['salePointName'], $requestData['idSalePoints']))) {
             return jsonAlertResponse('Já existe um ponto de venda cadastrado com esse nome.');
         }
 
         try {
-            // creates a new sale point
-            SalePoints::create([
+            $arrayCreateOrUpdate = [
                 'salePointName' => $requestData['salePointName'],
                 'description'   => $requestData['description']
-            ]);
+            ];
+
+            // creates a new sale point
+            if (empty($requestData['idSalePoints'])) {
+                $endMessagePart = 'cadastrado';
+
+                SalePoints::create($arrayCreateOrUpdate);
+            } else {
+                $endMessagePart = 'atualizado';
+
+                SalePoints::where('idSalePoints', $requestData['idSalePoints'])
+                    ->update($arrayCreateOrUpdate);
+            }
         } catch (Throwable $e) {
             return jsonAlertResponse(
                 "Há algo errado com os dados enviados.",
@@ -51,13 +62,14 @@ class SalePointsController extends Controller {
             );
         }
 
-        return jsonSuccessResponse('Ponto de venda cadastrado com sucesso!');
+        return jsonSuccessResponse("Ponto de venda {$endMessagePart} com sucesso!");
     }
 
-    private function getSalePointByName(string $salePointName) {
+    private function getSalePointByNameDiffId(string $salePointName, $idSalePoints = '') {
         return SalePoints::firstWhere(
             [
-                ['salePointName', '=', $salePointName]
+                ['salePointName', '=', $salePointName],
+                ['idSalePoints', '!=', $idSalePoints]
             ]
         );
     }

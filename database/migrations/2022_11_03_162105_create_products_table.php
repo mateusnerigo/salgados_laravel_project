@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->bigIncrements('idProducts');
             $table->string('productName', 100);
             $table->decimal('standardValue', 19, 2, true)->default(0.00);
-            $table->boolean('isActive', 1)->default(1);
+            $table->boolean('isActive')->default(1);
             $table->timestamps();
         });
     }

@@ -23,7 +23,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 $routeCommomGroup = function() {
     Route::get('', 'index');
-    Route::post('', 'store');
+    Route::post('', 'save');
 };
 
 // Sale Points

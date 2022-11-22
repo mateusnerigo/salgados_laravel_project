@@ -9,7 +9,6 @@ class SalePoints extends Model {
     use HasFactory;
 
     protected $hidden = [
-        'idSalePoints',
         'created_at',
         'updated_at'
     ];

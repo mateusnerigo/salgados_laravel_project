@@ -21,17 +21,24 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-$routeCommomGroup = function() {
-    Route::get('', 'index');
-    Route::post('', 'save');
-};
+$routeCommomGroup =
 
 // Sale Points
 Route::controller(SalePointsController::class)
     ->prefix('salePoints')
-    ->group($routeCommomGroup);
+    ->group(function() {
+        Route::get('', 'index');
+        Route::post('', 'save');
+        Route::post('/salePoint', 'show');
+        Route::post('/toggle', 'toggleActive');
+    });
 
 // Clients
 Route::controller(ClientsController::class)
     ->prefix('clients')
-    ->group($routeCommomGroup);
+    ->group(function () {
+        Route::get('', 'index');
+        Route::post('', 'save');
+        Route::post('/client', 'show');
+        Route::post('/toggle', 'toggleActive');
+    });

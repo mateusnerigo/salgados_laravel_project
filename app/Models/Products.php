@@ -16,6 +16,6 @@ class Products extends Model {
     protected $fillable = [
         'productName',
         'standardValue',
-        'idActive'
+        'isActive'
     ];
 }

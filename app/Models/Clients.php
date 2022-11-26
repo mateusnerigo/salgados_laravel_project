@@ -9,7 +9,6 @@ class Clients extends Model {
     use HasFactory;
 
     protected $hidden = [
-        'idClients',
         'created_at',
         'updated_at'
     ];

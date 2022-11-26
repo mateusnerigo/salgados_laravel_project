@@ -2,64 +2,247 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Clients;
+use App\Models\SalePoints;
+use Throwable;
 
 class ClientsController extends Controller {
     /**
      * Returns all clients created
+     * @return JsonResponse
      */
     public function index() {
         return jsonResponse(data: Clients::all());
     }
 
     /**
+     * Returns a client created by id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function show(Request $request): JsonResponse {
+        // properly receive the request information
+        if (isAnEmptyRequest($request)) {
+            return dataSendedErrorResponse();
+        }
+
+        return jsonResponse(data: Clients::firstWhere([
+            ['idClients', '=', json_decode($request->data, true)['idClients']]
+        ]));
+    }
+
+    /**
+     * Toggles a client  status
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function toggleActive(Request $request): JsonResponse {
+        // properly receive the request information
+        if (isAnEmptyRequest($request)) {
+            return dataSendedErrorResponse();
+        }
+
+        // sets the id received
+        $idClients = json_decode($request->data, true)['idClients'];
+
+        // get the actual sale point status by id
+        $statusClient = Clients::firstWhere([
+            ['idClients', '=', $idClients]
+        ]);
+
+        // verifies the returned data
+        if (empty($statusClient)) {
+            return jsonAlertResponse(
+                'Há algo errado com a atualização deste cliente',
+                "No client founded with the id sended ({$idClients})"
+            );
+        }
+
+        // default values
+        $statusToChange = 0;
+        $endMessagePart = 'desativado';
+
+        // changes if the actual status is set to 0 (zero)
+        if ($statusClient['isActive'] == 0) {
+            $statusToChange = 1;
+            $endMessagePart = 'ativado';
+        }
+
+        try {
+            // updates the client founded
+            Clients::where('idClients', $idClients)
+                ->update(['isActive' => $statusToChange]);
+        } catch (Throwable $e) {
+            // returns it if an error occurs
+            return jsonAlertResponse(
+                "Há algo errado com os dados enviados.",
+                $e->getMessage()
+            );
+        }
+
+        // returns with successfull message
+        return jsonSuccessResponse("Cliente {$endMessagePart} com sucesso!");
+    }
+
+    /**
      * Verifies the data sended and inserts a new client in DB if it doesn't exists
      * @param Request $request
+     * @return JsonResponse
      */
-    public function store(Request $request) {
+    public function save(Request $request): JsonResponse {
         // properly receive the request information
-        [
-            'clientName'   => $clientName,
-            'idSalePoints' => $idSalePoints
-        ] = $request;
-        unset($request);
+        if (isAnEmptyRequest($request)) {
+            return dataSendedErrorResponse();
+        }
 
-        // array to verify if a client already exists
-        $clientDataVerification = [
-            ['clientName', '=', $clientName]
-        ];
+        // receives the data sended in a variable
+        $requestData = json_decode($request->data, true);
 
-        // if idSalePoints is received, we add it to verification
-        if (!empty($idSalePoints)) {
-            $clientDataVerification[] = ['idSalePoints', '=', $idSalePoints];
+        // verifies client id
+        if (!empty($requestData['idClients']) && empty($this->getClientById($requestData['idClients']))) {
+            return jsonAlertResponse(
+                'O código do cliente enviado não pertence a nenhum cliente cadastrado.',
+                "Sended variable value: {$requestData['idClients']}"
+            );
+        }
+
+        // verifies client name
+        $clientNameValidationError = $this->validateClientName($requestData['clientName'] ?? null);
+        if (!empty($clientNameValidationError)) {
+            return $clientNameValidationError;
+        }
+
+        // verifies sale point id
+        $idSalePointsValidationError = $this->validateIdSalePoints($requestData['idSalePoints'] ?? null);
+        if (!empty($idSalePointsValidationError)) {
+            return $idSalePointsValidationError;
         }
 
         // verifies if the data given matches with a client already created
-        if (!empty(Clients::firstWhere($clientDataVerification))) {
-            return jsonResponse(
-                'Já existe um cliente cadastrado com esse nome para este ponto de venda.',
-                'alert'
+        $clientAlreadyCreated = $this->getClientByNameDiffIdAndSalePoints(
+            $requestData['clientName'],
+            $requestData['idClients'],
+            $requestData['idSalePoints']
+        );
+
+        if (!empty($clientAlreadyCreated)) {
+            return jsonAlertResponse('Já existe um cliente cadastrado com esse nome para esse ponto de venda.');
+        }
+        // verifies if the data given matches with a client already created
+
+        try {
+            // insertion array for insert or update
+            $arrayCreateOrUpdate = [
+                'clientName' => $requestData['clientName']
+            ];
+
+            if (!empty($requestData['idSalePoints'])) {
+                $arrayCreateOrUpdate['idSalePoints'] = $requestData['idSalePoints'];
+            }
+
+            // creates a new client
+            if (empty($requestData['idClients'])) {
+                $endMessagePart = 'cadastrado';
+
+                Clients::create($arrayCreateOrUpdate);
+
+            // updates a client already created
+            } else {
+                $endMessagePart = 'atualizado';
+
+                Clients::where('idClients', $requestData['idClients'])
+                    ->update($arrayCreateOrUpdate);
+            }
+        } catch (Throwable $e) {
+            // returns a message if an error occurs
+            return jsonAlertResponse(
+                "Há algo errado com os dados enviados.",
+                $e->getMessage()
             );
         }
-        unset($clientDataVerification);
 
-        // inserts data for a new client
-        $clientData = [
-            'clientName' => $clientName
-        ];
+        // returns with a successfull message
+        return jsonSuccessResponse("Cliente {$endMessagePart} com sucesso!");
+    }
 
-        // if idSalePoints is received, we add it to creation
-        if (!empty($idSalePoints)) {
-            $clientData['idSalePoints'] = $idSalePoints;
+    /**
+     * Auxiliary functions to return a client by id
+     * @param int $idClients
+     */
+    private function getClientById($idClients = 0) {
+        return Clients::firstWhere([ ['idClients', '=', $idClients] ]);
+    }
+
+    /**
+     * Auxiliary functions to return a client with the given information
+     * (used to find a client with a name used by another one with the same sale point)
+     * @param string $clientName
+     * @param int    $idClients
+     * @param int    $idSalePoints
+     */
+    private function getClientByNameDiffIdAndSalePoints(string $clientName, $idClients = 0, $idSalePoints = 0) {
+         return Clients::firstWhere(
+            [
+                ['clientName', '=', $clientName],
+                ['idClients', '!=', $idClients],
+                ['idSalePoints', '=', $idSalePoints],
+            ]
+        );
+    }
+
+    /**
+     * Auxiliary function to validate a new name for a client
+     * @param $clientName
+     */
+    private function validateClientName($clientName) {
+        if (!isset($clientName)) {
+            return jsonAlertResponse(
+                "O nome do cliente não foi enviado corretamente.",
+                "Empty variable: \$requestData['clientName']."
+            );
         }
 
-        // if the data given is valid, creates a new client
-        Clients::create($clientData);
+        if (empty($clientName)) {
+            return jsonAlertResponse("O nome do cliente deve ser preenchido.");
+        }
 
-        return jsonResponse(
-            'Cliente cadastrado com sucesso!',
-            'success'
-        );
+        if (strlen($clientName) < 3) {
+            return jsonAlertResponse("O nome do cliente deve ter pelo menos 3 letras.");
+        }
+
+        return '';
+    }
+
+    /**
+     * Auxiliary function to validate sale points sended id
+     * @param $salePointName
+     */
+    private function validateIdSalePoints($idSalePoints) {
+        if (!isset($idSalePoints)) {
+            return jsonAlertResponse(
+                "O ponto de venda deste cliente não foi enviado corretamente.",
+                "Empty variable: \$requestData['idSalePoints']."
+            );
+        }
+
+        if (!is_numeric($idSalePoints)) {
+            return jsonAlertResponse(
+                "O ponto de venda deste cliente foi enviado de forma equívoca.",
+                "Sended variable value: {$idSalePoints}"
+            );
+        }
+
+        if ($idSalePoints > 0) {
+            if (empty(SalePoints::firstWhere([['idSalePoints', '=', $idSalePoints]]))) {
+                return jsonAlertResponse(
+                    "O ponto de venda enviado não está cadastrado corretamente.",
+                    "Sended variable value: {$idSalePoints}"
+                );
+            }
+        }
+
+        return '';
     }
 }

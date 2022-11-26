@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\SalePoints;
-use \Illuminate\Http\JsonResponse;
-use Throwable;
+use Illuminate\Http\JsonResponse,
+    Illuminate\Http\Request,
+    App\Models\SalePoints,
+    Throwable;
 
 class SalePointsController extends Controller {
     /**
      * Returns all sale points created
+     * @return JsonResponse
      */
     public function index(): JsonResponse {
         return jsonResponse(data: SalePoints::all());
@@ -17,6 +18,8 @@ class SalePointsController extends Controller {
 
     /**
      * Returns a sale point created by id
+     * @param Request $request
+     * @return JsonResponse
      */
     public function show(Request $request): JsonResponse {
         // properly receive the request information
@@ -30,7 +33,9 @@ class SalePointsController extends Controller {
     }
 
     /**
-     * Updates a sale point to inactive
+     * Toggles a sale point status
+     * @param Request $request
+     * @return JsonResponse
      */
     public function toggleActive(Request $request): JsonResponse {
         // properly receive the request information
@@ -83,6 +88,7 @@ class SalePointsController extends Controller {
     /**
      * Verifies the data sended and inserts a new sale point in DB if it doesn't exists
      * @param Request $request
+     * @return JsonResponse
      */
     public function save(Request $request): JsonResponse {
         // properly receive the request information
@@ -93,12 +99,18 @@ class SalePointsController extends Controller {
         // receives the data sended in a variable
         $requestData = json_decode($request->data, true);
 
-        // verify necessary data
-        if (empty($requestData['salePointName'])) {
+        // verifies sale point id
+        if (!empty($requestData['idSalePoints']) && empty($this->getClientById($requestData['idSalePoints']))) {
             return jsonAlertResponse(
-                "O nome do ponto de venda não foi enviado corretamente.",
-                "Empty variable: \$requestData['salePointName']."
+                'O código do ponto de venda enviado não pertence a nenhum ponto de venda cadastrado.',
+                "Sended variable value: {$requestData['idSalePoints']}"
             );
+        }
+
+        // verifies sale point name
+        $salePointNameValidation = $this->validateSalePointName($requestData['salePointName'] ?? null);
+        if (!empty($salePointNameValidation)) {
+            return $salePointNameValidation;
         }
 
         // verifies if the data given matches with a sale point already created
@@ -139,15 +151,51 @@ class SalePointsController extends Controller {
     }
 
     /**
-     * Auxiliary functions to return a sale point with the given information
-     * (used to find an sale point with a name used by another one)
+     * Auxiliary functions to return a sale point by id
+     * @param int $idSalePoints
      */
-    private function getSalePointByNameDiffId(string $salePointName, $idSalePoints = '') {
+    private function getSalePointById($idSalePoints = 0) {
+        return SalePoints::firstWhere([['idSalePoints', '=', $idSalePoints]]);
+    }
+
+    /**
+     * Auxiliary functions to return a sale point with the given information
+     * (used to find a sale point with a name used by another one)
+     * @param string $salePointName
+     * @param int    $idSalePoints
+     */
+    private function getSalePointByNameDiffId(string $salePointName, int $idSalePoints = 0) {
         return SalePoints::firstWhere(
             [
                 ['salePointName', '=', $salePointName],
                 ['idSalePoints', '!=', $idSalePoints]
             ]
         );
+    }
+
+    /**
+     * Auxiliary function to validate a new name for a sale point
+     * @param $salePointName
+     */
+    private function validateSalePointName($salePointName) {
+        // if it is not set
+        if (!isset($salePointName)) {
+            return jsonAlertResponse(
+                "O nome do ponto de venda não foi enviado corretamente.",
+                "Empty variable: \$requestData['salePointName']."
+            );
+        }
+
+        // if it is empty
+        if (empty($salePointName)) {
+            return jsonAlertResponse("O nome do ponto de venda deve ser preenchido.");
+        }
+
+        // if it is shorter than 3 characters
+        if (strlen($salePointName) < 3) {
+            return jsonAlertResponse("O nome do ponto de venda deve ter pelo menos 3 letras.");
+        }
+
+        return '';
     }
 }

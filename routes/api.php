@@ -1,10 +1,12 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request,
+    Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\ClientsController;
-use App\Http\Controllers\SalePointsController;
+use App\Http\Controllers\ClientsController,
+    App\Http\Controllers\SalePointsController,
+    App\Http\Controllers\SalesController,
+    App\Http\Controllers\ProductsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,8 +22,6 @@ use App\Http\Controllers\SalePointsController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
-$routeCommomGroup =
 
 // Sale Points
 Route::controller(SalePointsController::class)
@@ -41,4 +41,24 @@ Route::controller(ClientsController::class)
         Route::post('', 'save');
         Route::post('/client', 'show');
         Route::post('/toggle', 'toggleActive');
+    });
+
+// Products
+Route::controller(ProductsController::class)
+    ->prefix('products')
+    ->group(function () {
+        Route::get('', 'index');
+        Route::post('', 'save');
+        Route::post('/product', 'show');
+        Route::post('/toggle', 'toggleActive');
+    });
+
+// Sales
+Route::controller(SalesController::class)
+    ->prefix('sales')
+    ->group(function () {
+        Route::get('', 'index');
+        Route::post('', 'save');
+        Route::post('/sale', 'show');
+        Route::post('/updateStatus', 'updateStatus');
     });

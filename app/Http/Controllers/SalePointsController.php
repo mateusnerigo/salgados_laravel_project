@@ -27,8 +27,18 @@ class SalePointsController extends Controller {
             return dataSendedErrorResponse();
         }
 
+        $idSalePoints = json_decode($request->data, true)['idSalePoints'];
+
+        // verifies sale point id
+        if (!empty($idSalePoints) && empty($this->getSalePointtById($idSalePoints))) {
+            return jsonAlertResponse(
+                'O código do ponto de venda enviado não pertence a nenhum ponto de venda cadastrado.',
+                "Sended variable value: {$idSalePoints}"
+            );
+        }
+
         return jsonResponse(data: SalePoints::firstWhere([
-            [ 'idSalePoints', '=', json_decode($request->data, true)['idSalePoints'] ]
+            [ 'idSalePoints', '=', $idSalePoints ]
         ]));
     }
 
@@ -45,6 +55,14 @@ class SalePointsController extends Controller {
 
         // sets the id received
         $idSalePoints = json_decode($request->data, true)['idSalePoints'];
+
+        // verifies sale point id
+        if (!empty($idSalePoints) && empty($this->getSalePointtById($idSalePoints))) {
+            return jsonAlertResponse(
+                'O código do ponto de venda enviado não pertence a nenhum ponto de venda cadastrado.',
+                "Sended variable value: {$idSalePoints}"
+            );
+        }
 
         // get the actual sale point status by id
         $statusSalePoint = SalePoints::firstWhere([

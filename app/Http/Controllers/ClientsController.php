@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use App\Models\Clients;
-use App\Models\SalePoints;
-use Throwable;
+use Illuminate\Http\JsonResponse,
+    Illuminate\Http\Request,
+    App\Models\Clients,
+    App\Models\SalePoints,
+    Throwable;
 
 class ClientsController extends Controller {
     /**
@@ -28,8 +28,18 @@ class ClientsController extends Controller {
             return dataSendedErrorResponse();
         }
 
+        $idClients = json_decode($request->data, true)['idClients'] ;
+
+        // verifies client id
+        if (!empty($idClients) && empty($this->getClientById($idClients))) {
+            return jsonAlertResponse(
+                'O código do cliente enviado não pertence a nenhum cliente cadastrado.',
+                "Sended variable value: {$idClients}"
+            );
+        }
+
         return jsonResponse(data: Clients::firstWhere([
-            ['idClients', '=', json_decode($request->data, true)['idClients']]
+            ['idClients', '=', $idClients]
         ]));
     }
 
@@ -47,7 +57,15 @@ class ClientsController extends Controller {
         // sets the id received
         $idClients = json_decode($request->data, true)['idClients'];
 
-        // get the actual sale point status by id
+        // verifies client id
+        if (!empty($idClients) && empty($this->getClientById($idClients))) {
+            return jsonAlertResponse(
+                'O código do cliente enviado não pertence a nenhum cliente cadastrado.',
+                "Sended variable value: {$idClients}"
+            );
+        }
+
+        // get the actual client status by id
         $statusClient = Clients::firstWhere([
             ['idClients', '=', $idClients]
         ]);
@@ -55,7 +73,7 @@ class ClientsController extends Controller {
         // verifies the returned data
         if (empty($statusClient)) {
             return jsonAlertResponse(
-                'Há algo errado com a atualização deste cliente',
+                'Há algo errado com a atualização deste cliente.',
                 "No client founded with the id sended ({$idClients})"
             );
         }
@@ -130,7 +148,6 @@ class ClientsController extends Controller {
         if (!empty($clientAlreadyCreated)) {
             return jsonAlertResponse('Já existe um cliente cadastrado com esse nome para esse ponto de venda.');
         }
-        // verifies if the data given matches with a client already created
 
         try {
             // insertion array for insert or update
@@ -197,6 +214,7 @@ class ClientsController extends Controller {
      * @param $clientName
      */
     private function validateClientName($clientName) {
+        // if it is not set
         if (!isset($clientName)) {
             return jsonAlertResponse(
                 "O nome do cliente não foi enviado corretamente.",
@@ -204,10 +222,12 @@ class ClientsController extends Controller {
             );
         }
 
+        // if it is empty
         if (empty($clientName)) {
             return jsonAlertResponse("O nome do cliente deve ser preenchido.");
         }
 
+        // if it is shorter than 3 characters
         if (strlen($clientName) < 3) {
             return jsonAlertResponse("O nome do cliente deve ter pelo menos 3 letras.");
         }
@@ -217,9 +237,10 @@ class ClientsController extends Controller {
 
     /**
      * Auxiliary function to validate sale points sended id
-     * @param $salePointName
+     * @param $idSalePoints
      */
     private function validateIdSalePoints($idSalePoints) {
+        // if it is not set
         if (!isset($idSalePoints)) {
             return jsonAlertResponse(
                 "O ponto de venda deste cliente não foi enviado corretamente.",
@@ -227,6 +248,7 @@ class ClientsController extends Controller {
             );
         }
 
+        // if it is not numeric
         if (!is_numeric($idSalePoints)) {
             return jsonAlertResponse(
                 "O ponto de venda deste cliente foi enviado de forma equívoca.",
@@ -234,10 +256,23 @@ class ClientsController extends Controller {
             );
         }
 
+        // if the id was sended
         if ($idSalePoints > 0) {
+            // if the sale point isn't registered
             if (empty(SalePoints::firstWhere([['idSalePoints', '=', $idSalePoints]]))) {
                 return jsonAlertResponse(
                     "O ponto de venda enviado não está cadastrado corretamente.",
+                    "Sended variable value: {$idSalePoints}"
+                );
+            }
+
+            // if the sale point isn't active
+            if (empty(SalePoints::firstWhere([
+                ['idSalePoints', '=', $idSalePoints],
+                ['isActive', '=', 0]
+            ]))) {
+                return jsonAlertResponse(
+                    "O ponto de venda escolhido não está ativo.",
                     "Sended variable value: {$idSalePoints}"
                 );
             }

@@ -38,9 +38,7 @@ class ClientsController extends Controller {
             );
         }
 
-        return jsonResponse(data: Clients::firstWhere([
-            ['idClients', '=', $idClients]
-        ]));
+        return jsonResponse(data: $this->getClientById($idClients));
     }
 
     /**

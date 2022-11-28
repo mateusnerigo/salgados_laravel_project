@@ -30,16 +30,14 @@ class ProductsController extends Controller {
         $idProducts = json_decode($request->data, true)['idProducts'];
 
         // verifies product id
-        if (!empty($idProducts) && empty($this->getProductById($idProducts))) {
+        if (!empty($idProducts) && empty(Products::getById($idProducts))) {
             return jsonAlertResponse(
                 'O código do produto enviado não pertence a nenhum produto cadastrado.',
                 "Sended variable value: {$idProducts}"
             );
         }
 
-        return jsonResponse(data: Products::firstWhere([
-            ['idProducts', '=', $idProducts]
-        ]));
+        return jsonResponse(data: Products::getById($idProducts));
     }
 
     /**
@@ -57,7 +55,7 @@ class ProductsController extends Controller {
         $idProducts = json_decode($request->data, true)['idProducts'];
 
         // verifies product id
-        if (!empty($idProducts) && empty($this->getProductById($idProducts))) {
+        if (!empty($idProducts) && empty(Products::getById($idProducts))) {
             return jsonAlertResponse(
                 'O código do produto enviado não pertence a nenhum produto cadastrado.',
                 "Sended variable value: {$idProducts}"
@@ -65,9 +63,7 @@ class ProductsController extends Controller {
         }
 
         // get the actual product status by id
-        $statusProduct = Products::firstWhere([
-            ['idProducts', '=', $idProducts]
-        ]);
+        $statusProduct = Products::getById($idProducts);
 
         // verifies the returned data
         if (empty($statusProduct)) {
@@ -89,8 +85,8 @@ class ProductsController extends Controller {
 
         try {
             // updates the product founded
-            Products::where('idProducts', $idProducts)
-                ->update(['isActive' => $statusToChange]);
+            Products::getById($idProducts)
+                ->setActiveStatus($statusToChange);
         } catch (Throwable $e) {
             // returns it if an error occurs
             return jsonAlertResponse(
@@ -118,7 +114,7 @@ class ProductsController extends Controller {
         $requestData = json_decode($request->data, true);
 
         // verifies product id
-        if (!empty($requestData['idProducts']) && empty($this->getProductById($requestData['idProducts']))) {
+        if (!empty($requestData['idProducts']) && empty(Products::getById($requestData['idProducts']))) {
             return jsonAlertResponse(
                 'O código do produto enviado não pertence a nenhum produto cadastrado.',
                 "Sended variable value: {$requestData['idProducts']}"
@@ -131,16 +127,16 @@ class ProductsController extends Controller {
             return $productNameValidationError;
         }
 
+        // verifies standard value
         $standardValueValidationError = $this->validateStandardValue($requestData['standardValue'] ?? null);
         if (!empty($standardValueValidationError)) {
             return $standardValueValidationError;
         }
 
         // verifies if the data given matches with a product already created
-        $productAlreadyCreated = $this->getProductByNameDiffId(
-            $requestData['productName'],
-            $requestData['idProducts']
-        );
+        $productAlreadyCreated = Products::whereName($requestData['productName'])
+            ->whereDiffId($requestData['idProducts'])
+            ->first();
 
         if (!empty($productAlreadyCreated)) {
             return jsonAlertResponse('Já existe um producto cadastrado com esse nome.');
@@ -163,7 +159,7 @@ class ProductsController extends Controller {
             } else {
                 $endMessagePart = 'atualizado';
 
-                Products::where('idProducts', $requestData['idProducts'])
+                Products::getById($requestData['idProducts'])
                     ->update($arrayCreateOrUpdate);
             }
         } catch (Throwable $e) {
@@ -176,29 +172,6 @@ class ProductsController extends Controller {
 
         // returns with a successfull message
         return jsonSuccessResponse("Produto {$endMessagePart} com sucesso!");
-    }
-
-    /**
-     * Auxiliary functions to return a product by id
-     * @param int $idProducts
-     */
-    private function getProductById($idProducts = 0) {
-        return Products::firstWhere([['idProducts', '=', $idProducts]]);
-    }
-
-    /**
-     * Auxiliary functions to return a product with the given information
-     * (used to find a product with a name used by another one)
-     * @param string $productName
-     * @param int    $idProducts
-     */
-    private function getProductByNameDiffId(string $productName, $idProducts = 0) {
-        return Products::firstWhere(
-            [
-                ['productName', '=', $productName],
-                ['idProducts', '!=', $idProducts]
-            ]
-        );
     }
 
     /**

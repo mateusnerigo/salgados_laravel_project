@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse,
     Illuminate\Http\Request,
     App\Models\Sales,
+    App\Models\SaleItems,
     App\Models\Clients,
     App\Models\SalePoints,
+    App\Models\Products,
     Throwable,
     DateTime;
 
@@ -16,7 +18,15 @@ class SalesController extends Controller {
      * @return JsonResponse
      */
     public function index() {
-        return jsonResponse(data: Sales::all());
+        $sales = Sales::all();
+
+        if (!empty($sales)) {
+            foreach($sales AS $index => $sale) {
+                $sales[$index]['items'] = $this->getSaleItemsBySaleId($sale->idSales);
+            }
+        }
+
+        return jsonResponse(data: $sales);
     }
 
     /**
@@ -40,9 +50,11 @@ class SalesController extends Controller {
             );
         }
 
-        return jsonResponse(data: Sales::firstWhere([
-            ['idSales', '=', $idSales]
-        ]));
+        // prepares sale information
+        $sale = $this->getSaleById($idSales);
+        $sale['items'] = $this->getSaleItemsBySaleId($idSales);
+
+        return jsonResponse(data: $sale);
     }
 
     /**
@@ -58,17 +70,23 @@ class SalesController extends Controller {
 
         // receives the data sended in a variable
         $requestData = json_decode($request->data, true);
+        $sale = $this->getSaleById($requestData['idSales']);
 
         // verifies client id
-        if (!empty($requestData['idSales']) && empty($this->getSaleById($requestData['idSales']))) {
+        if (!empty($requestData['idSales']) && empty($sale)) {
             return jsonAlertResponse(
                 'O código da venda enviada não pertence a nenhuma venda cadastrada.',
                 "Sended variable value: {$requestData['idSales']}"
             );
         }
 
+
         // verifies sale point id
-        $statusValidationError = $this->validateStatus($requestData['status'] ?? null);
+        $statusValidationError = $this->validateStatus(
+            $sale['status'],
+            ($requestData['status'] ?? null)
+        );
+
         if (!empty($statusValidationError)) {
             return $statusValidationError;
         }
@@ -121,6 +139,12 @@ class SalesController extends Controller {
             return $deliverDatetimeValidationError;
         }
 
+        // verifies items sended
+        $saleItemsValidationError = $this->validateSaleItems($requestData['items'] ?? null);
+        if (!empty($saleItemsValidationError)) {
+            return $saleItemsValidationError;
+        }
+
         try {
             // creates a new sale
             Sales::create([
@@ -141,11 +165,21 @@ class SalesController extends Controller {
     }
 
     /**
-     * Auxiliary functions to return a sale by id
+     * Auxiliary function to return a sale by id
      * @param int $idSales
      */
     private function getSaleById($idSales = 0) {
         return Sales::firstWhere([['idSales', '=', $idSales]]);
+    }
+
+    /**
+     * Auxiliary function to return the items from a sale by its id
+     * @param int $idSales
+     */
+    private function getSaleItemsBySaleId($idSales) {
+        return SaleItems::where('idSales', $idSales)
+            ->orderBy('idSaleItems')
+            ->get();
     }
 
     /**
@@ -242,11 +276,12 @@ class SalesController extends Controller {
 
     /**
      * Auxiliary function to validate status sended
-     * @param $status
+     * @param $actualStatus
+     * @param $newStatus
      */
-    private function validateStatus($status) {
+    private function validateStatus($actualStatus, $newStatus) {
         // if it is not set
-        if (!isset($status)) {
+        if (!isset($newStatus)) {
             return jsonAlertResponse(
                 "A situação da venda não foi enviada corretamente",
                 "Empty variable: \$requestData['status']."
@@ -254,10 +289,18 @@ class SalesController extends Controller {
         }
 
         // if it is not in the array of possible status
-        if (!in_array($status, SALES_STATUS)) {
+        if (!in_array($newStatus, SALES_STATUS)) {
             return jsonAlertResponse(
-                "A situação enviada para que a venda seja atualizada é uma situação possível.",
-                "Sended variable value: {$status}"
+                "A situação enviada para que a venda seja atualizada não é uma situação possível.",
+                "Sended variable value: {$newStatus}"
+            );
+        }
+
+        // if it is a canceled or finished sale
+        if ($actualStatus == 'cl' || $actualStatus == 'fs') {
+            return jsonAlertResponse(
+                "A venda não pode ser atualizada.",
+                "Sale already finished or canceled."
             );
         }
 
@@ -289,6 +332,44 @@ class SalesController extends Controller {
         }
         unset($deliverDateTimeValidation);
 
+        return '';
+    }
+
+    /**
+     * Auxiliary function to validate items sended
+     * @param $itemsToValidate
+     */
+    private function validateSaleItems($itemsToValidate) {
+        // if it is not set
+        if (!isset($itemsToValidate)) {
+            return jsonAlertResponse(
+                "Os itens da venda não foram enviados.",
+                "Empty variable: \$requestData['items']."
+            );
+        }
+
+        foreach($itemsToValidate AS $item) {
+            $itemValidationError = $this->validateSingleSaleItem($item);
+
+            if (!empty($itemValidationError)) {
+                return $itemValidationError;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Auxiliary function to validate a single item from a sale
+     * @param $itemToValidate
+     */
+    private function validateSingleSaleItem($itemToValidate) {
+        // validar se o id do produto veio
+
+
+        if (empty(Products::getById($itemToValidate['idProducts']))) {
+
+        }
         return '';
     }
 }

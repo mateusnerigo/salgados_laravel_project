@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class SalePoints extends Model {
     use HasFactory;
 
+    protected $primaryKey = 'idSalePoints';
+    public $incrementing  = true;
+
     protected $hidden = [
         'created_at',
         'updated_at'

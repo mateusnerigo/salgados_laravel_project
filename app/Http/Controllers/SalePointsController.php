@@ -37,9 +37,7 @@ class SalePointsController extends Controller {
             );
         }
 
-        return jsonResponse(data: SalePoints::firstWhere([
-            [ 'idSalePoints', '=', $idSalePoints ]
-        ]));
+        return jsonResponse(data: $this->getSalePointById($idSalePoints));
     }
 
     /**

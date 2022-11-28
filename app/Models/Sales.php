@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Sales extends Model {
     use HasFactory;
 
+    protected $primaryKey = 'idSales';
+    public $incrementing  = true;
+
     protected $hidden = [];
 
     protected $fillable = [

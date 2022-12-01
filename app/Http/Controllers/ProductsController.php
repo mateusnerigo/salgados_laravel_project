@@ -29,15 +29,16 @@ class ProductsController extends Controller {
 
         $idProducts = json_decode($request->data, true)['idProducts'];
 
+
         // verifies product id
-        if (!empty($idProducts) && empty(Products::getById($idProducts))) {
+        if (!empty($idProducts) && empty(Products::getById($idProducts)->first())) {
             return jsonAlertResponse(
                 'O código do produto enviado não pertence a nenhum produto cadastrado.',
                 "Sended variable value: {$idProducts}"
             );
         }
 
-        return jsonResponse(data: Products::getById($idProducts));
+        return jsonResponse(data: Products::getById($idProducts)->first());
     }
 
     /**
@@ -55,7 +56,7 @@ class ProductsController extends Controller {
         $idProducts = json_decode($request->data, true)['idProducts'];
 
         // verifies product id
-        if (!empty($idProducts) && empty(Products::getById($idProducts))) {
+        if (!empty($idProducts) && empty(Products::getById($idProducts)->first())) {
             return jsonAlertResponse(
                 'O código do produto enviado não pertence a nenhum produto cadastrado.',
                 "Sended variable value: {$idProducts}"
@@ -63,7 +64,7 @@ class ProductsController extends Controller {
         }
 
         // get the actual product status by id
-        $statusProduct = Products::getById($idProducts);
+        $statusProduct = Products::getById($idProducts)->first();
 
         // verifies the returned data
         if (empty($statusProduct)) {
@@ -122,13 +123,23 @@ class ProductsController extends Controller {
         }
 
         // verifies product name
-        $productNameValidationError = $this->validateProductName($requestData['productName'] ?? null);
+        $productNameValidationError = $this->validateText(
+            ($requestData['productName'] ?? ''),
+            'Nome do produto',
+            'productName'
+        );
+
         if (!empty($productNameValidationError)) {
             return $productNameValidationError;
         }
 
         // verifies standard value
-        $standardValueValidationError = $this->validateStandardValue($requestData['standardValue'] ?? null);
+        $standardValueValidationError = $this->validateText(
+            ($requestData['standardValue'] ?? ''),
+            'Valor padrão',
+            'standardValue'
+        );
+
         if (!empty($standardValueValidationError)) {
             return $standardValueValidationError;
         }
@@ -139,7 +150,7 @@ class ProductsController extends Controller {
             ->first();
 
         if (!empty($productAlreadyCreated)) {
-            return jsonAlertResponse('Já existe um producto cadastrado com esse nome.');
+            return jsonAlertResponse('Já existe um produto cadastrado com esse nome.');
         }
 
         try {
@@ -172,57 +183,5 @@ class ProductsController extends Controller {
 
         // returns with a successfull message
         return jsonSuccessResponse("Produto {$endMessagePart} com sucesso!");
-    }
-
-    /**
-     * Auxiliary function to validate a new name for a product
-     * @param $productName
-     */
-    private function validateProductName($productName) {
-        // if it is not set
-        if (!isset($productName)) {
-            return jsonAlertResponse(
-                "O nome do produto não foi enviado corretamente.",
-                "Empty variable: \$requestData['productName']."
-            );
-        }
-
-        // if it is empty
-        if (empty($productName)) {
-            return jsonAlertResponse("O nome do produto deve ser preenchido.");
-        }
-
-        // if it is shorter than 3 characters
-        if (strlen($productName) < 3) {
-            return jsonAlertResponse("O nome do produto deve ter pelo menos 3 letras.");
-        }
-
-        return '';
-    }
-
-    /**
-     * Auxiliary function to validate sended value for a product
-     * @param $standardValue
-     */
-    private function validateStandardValue($standardValue) {
-        // if it is not set
-        if (!isset($standardValue)) {
-            return jsonAlertResponse(
-                "O valor do produto não foi enviado corretamente.",
-                "Empty variable: \$requestData['standardValue']."
-            );
-        }
-
-        // if it is empty
-        if (empty($standardValue)) {
-            return jsonAlertResponse("O valor do produto deve ser preenchido.");
-        }
-
-        // if it is not numeric
-        if (!is_numeric($standardValue)) {
-            return jsonAlertResponse("O valor do produto deve ser um número decimal (Exemplo: 19.60)");
-        }
-
-        return '';
     }
 }

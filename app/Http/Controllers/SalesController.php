@@ -229,52 +229,6 @@ class SalesController extends Controller {
     }
 
     /**
-     * Auxiliary function to validate sale points sended id
-     * @param $idSalePoints
-     */
-    private function validateIdSalePoints($idSalePoints) {
-        // if it is not set
-        if (!isset($idSalePoints)) {
-            return jsonAlertResponse(
-                "O ponto de venda deste cliente não foi enviado corretamente.",
-                "Empty variable: \$requestData['idSalePoints']."
-            );
-        }
-
-        // if it is not numeric
-        if (!is_numeric($idSalePoints)) {
-            return jsonAlertResponse(
-                "O ponto de venda deste cliente foi enviado de forma equívoca.",
-                "Sended variable value: {$idSalePoints}"
-            );
-        }
-
-        // if the id was sended
-        if ($idSalePoints > 0) {
-            // if the sale point isn't registered
-            if (empty(SalePoints::firstWhere([['idSalePoints', '=', $idSalePoints]]))) {
-                return jsonAlertResponse(
-                    "O ponto de venda enviado não está cadastrado corretamente.",
-                    "Sended variable value: {$idSalePoints}"
-                );
-            }
-
-            // if the sale point isn't active
-            if (empty(SalePoints::firstWhere([
-                ['idSalePoints', '=', $idSalePoints],
-                ['isActive', '=', 0]
-            ]))) {
-                return jsonAlertResponse(
-                    "O ponto de venda escolhido não está ativo.",
-                    "Sended variable value: {$idSalePoints}"
-                );
-            }
-        }
-
-        return '';
-    }
-
-    /**
      * Auxiliary function to validate status sended
      * @param $actualStatus
      * @param $newStatus

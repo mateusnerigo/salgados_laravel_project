@@ -29,9 +29,7 @@ class Products extends Model {
      * @param int $idProducts
      */
     public function scopeGetById(Builder $query, $idProducts) {
-        return $query
-            ->where('idProducts', $idProducts)
-            ->first();
+        return $query->where('idProducts', $idProducts);
     }
 
     /**

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse,
     Illuminate\Http\Request,
     App\Models\Clients,
-    App\Models\SalePoints,
     Throwable;
 
 class ClientsController extends Controller {
@@ -31,14 +30,14 @@ class ClientsController extends Controller {
         $idClients = json_decode($request->data, true)['idClients'] ;
 
         // verifies client id
-        if (!empty($idClients) && empty($this->getClientById($idClients))) {
+        if (!empty($idClients) && empty(Clients::getById($idClients)->first())) {
             return jsonAlertResponse(
                 'O código do cliente enviado não pertence a nenhum cliente cadastrado.',
                 "Sended variable value: {$idClients}"
             );
         }
 
-        return jsonResponse(data: $this->getClientById($idClients));
+        return jsonResponse(data: Clients::getById($idClients)->first());
     }
 
     /**
@@ -56,7 +55,7 @@ class ClientsController extends Controller {
         $idClients = json_decode($request->data, true)['idClients'];
 
         // verifies client id
-        if (!empty($idClients) && empty($this->getClientById($idClients))) {
+        if (!empty($idClients) && empty(Clients::getById($idClients)->first())) {
             return jsonAlertResponse(
                 'O código do cliente enviado não pertence a nenhum cliente cadastrado.',
                 "Sended variable value: {$idClients}"
@@ -64,9 +63,7 @@ class ClientsController extends Controller {
         }
 
         // get the actual client status by id
-        $statusClient = Clients::firstWhere([
-            ['idClients', '=', $idClients]
-        ]);
+        $statusClient = Clients::getById($idClients)->first();
 
         // verifies the returned data
         if (empty($statusClient)) {
@@ -88,8 +85,8 @@ class ClientsController extends Controller {
 
         try {
             // updates the client founded
-            Clients::where('idClients', $idClients)
-                ->update(['isActive' => $statusToChange]);
+            Clients::getById($idClients)
+                ->setActiveStatus($statusToChange);
         } catch (Throwable $e) {
             // returns it if an error occurs
             return jsonAlertResponse(
@@ -117,7 +114,7 @@ class ClientsController extends Controller {
         $requestData = json_decode($request->data, true);
 
         // verifies client id
-        if (!empty($requestData['idClients']) && empty($this->getClientById($requestData['idClients']))) {
+        if (!empty($requestData['idClients']) && empty(Clients::getById($requestData['idClients'])->first())) {
             return jsonAlertResponse(
                 'O código do cliente enviado não pertence a nenhum cliente cadastrado.',
                 "Sended variable value: {$requestData['idClients']}"
@@ -125,7 +122,12 @@ class ClientsController extends Controller {
         }
 
         // verifies client name
-        $clientNameValidationError = $this->validateClientName($requestData['clientName'] ?? null);
+        $clientNameValidationError = $this->validateText(
+            ($requestData['clientName'] ?? ''),
+            'Nome do client',
+            'clientName'
+        );
+
         if (!empty($clientNameValidationError)) {
             return $clientNameValidationError;
         }
@@ -183,14 +185,6 @@ class ClientsController extends Controller {
     }
 
     /**
-     * Auxiliary functions to return a client by id
-     * @param int $idClients
-     */
-    private function getClientById($idClients = 0) {
-        return Clients::firstWhere([ ['idClients', '=', $idClients] ]);
-    }
-
-    /**
      * Auxiliary functions to return a client with the given information
      * (used to find a client with a name used by another one with the same sale point)
      * @param string $clientName
@@ -205,77 +199,5 @@ class ClientsController extends Controller {
                 ['idSalePoints', '=', $idSalePoints],
             ]
         );
-    }
-
-    /**
-     * Auxiliary function to validate a new name for a client
-     * @param $clientName
-     */
-    private function validateClientName($clientName) {
-        // if it is not set
-        if (!isset($clientName)) {
-            return jsonAlertResponse(
-                "O nome do cliente não foi enviado corretamente.",
-                "Empty variable: \$requestData['clientName']."
-            );
-        }
-
-        // if it is empty
-        if (empty($clientName)) {
-            return jsonAlertResponse("O nome do cliente deve ser preenchido.");
-        }
-
-        // if it is shorter than 3 characters
-        if (strlen($clientName) < 3) {
-            return jsonAlertResponse("O nome do cliente deve ter pelo menos 3 letras.");
-        }
-
-        return '';
-    }
-
-    /**
-     * Auxiliary function to validate sale points sended id
-     * @param $idSalePoints
-     */
-    private function validateIdSalePoints($idSalePoints) {
-        // if it is not set
-        if (!isset($idSalePoints)) {
-            return jsonAlertResponse(
-                "O ponto de venda deste cliente não foi enviado corretamente.",
-                "Empty variable: \$requestData['idSalePoints']."
-            );
-        }
-
-        // if it is not numeric
-        if (!is_numeric($idSalePoints)) {
-            return jsonAlertResponse(
-                "O ponto de venda deste cliente foi enviado de forma equívoca.",
-                "Sended variable value: {$idSalePoints}"
-            );
-        }
-
-        // if the id was sended
-        if ($idSalePoints > 0) {
-            // if the sale point isn't registered
-            if (empty(SalePoints::firstWhere([['idSalePoints', '=', $idSalePoints]]))) {
-                return jsonAlertResponse(
-                    "O ponto de venda enviado não está cadastrado corretamente.",
-                    "Sended variable value: {$idSalePoints}"
-                );
-            }
-
-            // if the sale point isn't active
-            if (empty(SalePoints::firstWhere([
-                ['idSalePoints', '=', $idSalePoints],
-                ['isActive', '=', 0]
-            ]))) {
-                return jsonAlertResponse(
-                    "O ponto de venda escolhido não está ativo.",
-                    "Sended variable value: {$idSalePoints}"
-                );
-            }
-        }
-
-        return '';
     }
 }

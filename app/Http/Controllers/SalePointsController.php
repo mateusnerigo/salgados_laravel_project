@@ -30,14 +30,14 @@ class SalePointsController extends Controller {
         $idSalePoints = json_decode($request->data, true)['idSalePoints'];
 
         // verifies sale point id
-        if (!empty($idSalePoints) && empty($this->getSalePointtById($idSalePoints))) {
+        if (!empty($idSalePoints) && empty(SalePoints::getById($idSalePoints)->first())) {
             return jsonAlertResponse(
                 'O código do ponto de venda enviado não pertence a nenhum ponto de venda cadastrado.',
                 "Sended variable value: {$idSalePoints}"
             );
         }
 
-        return jsonResponse(data: $this->getSalePointById($idSalePoints));
+        return jsonResponse(data: SalePoints::getById($idSalePoints)->first());
     }
 
     /**
@@ -55,7 +55,7 @@ class SalePointsController extends Controller {
         $idSalePoints = json_decode($request->data, true)['idSalePoints'];
 
         // verifies sale point id
-        if (!empty($idSalePoints) && empty($this->getSalePointtById($idSalePoints))) {
+        if (!empty($idSalePoints) && empty($this->getSalePointById($idSalePoints))) {
             return jsonAlertResponse(
                 'O código do ponto de venda enviado não pertence a nenhum ponto de venda cadastrado.',
                 "Sended variable value: {$idSalePoints}"
@@ -63,9 +63,7 @@ class SalePointsController extends Controller {
         }
 
         // get the actual sale point status by id
-        $statusSalePoint = SalePoints::firstWhere([
-            ['idSalePoints', '=', $idSalePoints]
-        ]);
+        $statusSalePoint = SalePoints::getById($idSalePoints)->first();
 
         // verifies the returned data
         if (empty($statusSalePoint)) {
@@ -87,8 +85,8 @@ class SalePointsController extends Controller {
 
         try {
             // updates the sale point founded
-            SalePoints::where('idSalePoints', $idSalePoints)
-               ->update(['isActive' => $statusToChange]);
+            SalePoints::getById($idSalePoints)
+               ->setActiveStatus($statusToChange);
         } catch (Throwable $e) {
             // returns it if an error occurs
             return jsonAlertResponse(

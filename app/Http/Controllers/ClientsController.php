@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse,
     Illuminate\Http\Request,
     App\Models\Clients,
+    App\Models\SalePoints,
     Throwable;
 
 class ClientsController extends Controller {
@@ -114,17 +115,21 @@ class ClientsController extends Controller {
         $requestData = json_decode($request->data, true);
 
         // verifies client id
-        if (!empty($requestData['idClients']) && empty(Clients::getById($requestData['idClients'])->first())) {
-            return jsonAlertResponse(
-                'O código do cliente enviado não pertence a nenhum cliente cadastrado.',
-                "Sended variable value: {$requestData['idClients']}"
-            );
+        $idClientsValidationError = $this->validateId(
+            new Clients,
+            ($requestData['idClients'] ?? null),
+            'cliente',
+            'idClients'
+        );
+
+        if (!empty($idClientsValidationError)) {
+            return $idClientsValidationError;
         }
 
         // verifies client name
         $clientNameValidationError = $this->validateText(
             ($requestData['clientName'] ?? ''),
-            'Nome do client',
+            'Nome do cliente',
             'clientName'
         );
 
@@ -133,17 +138,22 @@ class ClientsController extends Controller {
         }
 
         // verifies sale point id
-        $idSalePointsValidationError = $this->validateIdSalePoints($requestData['idSalePoints'] ?? null);
+        $idSalePointsValidationError = $this->validateId(
+            new SalePoints,
+            ($requestData['idSalePoints'] ?? null),
+            'ponto de venda',
+            'idSalePoints'
+        );
+
         if (!empty($idSalePointsValidationError)) {
             return $idSalePointsValidationError;
         }
 
         // verifies if the data given matches with a client already created
-        $clientAlreadyCreated = $this->getClientByNameDiffIdAndSalePoints(
-            $requestData['clientName'],
-            $requestData['idClients'],
-            $requestData['idSalePoints']
-        );
+        $clientAlreadyCreated = Clients::whereName($requestData['clientName'])
+            ->whereDiffId($requestData['idClients'])
+            ->whereIdSalePoint($requestData['idSalePoints'])
+            ->first();
 
         if (!empty($clientAlreadyCreated)) {
             return jsonAlertResponse('Já existe um cliente cadastrado com esse nome para esse ponto de venda.');
@@ -169,7 +179,7 @@ class ClientsController extends Controller {
             } else {
                 $endMessagePart = 'atualizado';
 
-                Clients::where('idClients', $requestData['idClients'])
+                Clients::getById($requestData['idClients'])
                     ->update($arrayCreateOrUpdate);
             }
         } catch (Throwable $e) {
@@ -182,22 +192,5 @@ class ClientsController extends Controller {
 
         // returns with a successfull message
         return jsonSuccessResponse("Cliente {$endMessagePart} com sucesso!");
-    }
-
-    /**
-     * Auxiliary functions to return a client with the given information
-     * (used to find a client with a name used by another one with the same sale point)
-     * @param string $clientName
-     * @param int    $idClients
-     * @param int    $idSalePoints
-     */
-    private function getClientByNameDiffIdAndSalePoints(string $clientName, $idClients = 0, $idSalePoints = 0) {
-         return Clients::firstWhere(
-            [
-                ['clientName', '=', $clientName],
-                ['idClients', '!=', $idClients],
-                ['idSalePoints', '=', $idSalePoints],
-            ]
-        );
     }
 }

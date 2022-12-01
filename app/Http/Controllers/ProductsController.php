@@ -29,7 +29,6 @@ class ProductsController extends Controller {
 
         $idProducts = json_decode($request->data, true)['idProducts'];
 
-
         // verifies product id
         if (!empty($idProducts) && empty(Products::getById($idProducts)->first())) {
             return jsonAlertResponse(
@@ -137,7 +136,8 @@ class ProductsController extends Controller {
         $standardValueValidationError = $this->validateText(
             ($requestData['standardValue'] ?? ''),
             'Valor padrão',
-            'standardValue'
+            'standardValue',
+            validateNumeric: true
         );
 
         if (!empty($standardValueValidationError)) {

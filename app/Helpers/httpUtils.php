@@ -54,5 +54,5 @@ function isAnEmptyRequest(Request $request): bool {
  * @return JsonResponse
  */
 function dataSendedErrorResponse(): JsonResponse {
-    return jsonAlertResponse('Os dados não foram enviados corretamente.',);
+    return jsonAlertResponse('Os dados não foram enviados corretamente.');
 }

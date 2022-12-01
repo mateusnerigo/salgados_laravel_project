@@ -51,6 +51,23 @@ class Clients extends Model {
     }
 
     /**
+     * Auxiliary function to return a client by sale point id
+     * @param Builder $query
+     * @param int $idSalePoints
+     */
+    public function scopeWhereIdSalePoint(Builder $query, int $idSalePoints) {
+        return $query->where('idSalePoints', $idSalePoints);
+    }
+
+    /**
+     * Auxiliary function to return if 'active true' status
+     * @param Builder $query
+     */
+    public function scopeIsActive(Builder $query) {
+        return $query->where('isActive', 1);
+    }
+
+    /**
      * Auxiliary function to updates a client to a defined status
      * @param Builder $query
      * @param string $activeStatus (0|1)

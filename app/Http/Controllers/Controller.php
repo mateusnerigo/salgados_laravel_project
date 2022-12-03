@@ -246,7 +246,7 @@ class Controller extends BaseController {
             ($itemToValidate['quantity'] ?? null),
             "quantidade (linha {$itemIndex})",
             "\$itemToValidate['quantity']",
-            validateInteger: true
+            validateNumeric: true
         );
         if (!empty($quantityValidationError)) {
             return $quantityValidationError;

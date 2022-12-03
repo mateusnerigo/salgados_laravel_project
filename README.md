@@ -1,66 +1,222 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# **Salgados Manager**
+API project using Laravel 9
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<br>
 
-## About Laravel
+# How to configure it
+- First of all, we need `PHP` and `composer` installed. Also a `PHP server` and `MySQL database` running.
+- Copy `.env.example` to `.env` and change the values in order to use it with your MySQL database.
+- Open a console in the project root and run composer in it like `composer install`.
+- Verify if a PHP server and MySQL is running.
+- In the console, continue with the command `php artisan migrate` to create the database structure.
+- Run the command `php artisan serve` to start the project.
+- Done, use it like an API to create, retrieve, update and delete data.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<br>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+# How to use it
+## Default return
+The default return is JSON formated and all requisitions returns in the following way:
+```json
+{
+    // (string) Message for frontend use
+    "msg": "",
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+    // (string) Message for dev use, more information about errors and exceptions
+    "dev": "",
 
-## Learning Laravel
+    // (string) The type/class of the message.
+    // Minded to be used for frontend libraries with default message types
+    "type": "",
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+    // (json array) Returned data from requisition
+    "data": []
+}
+```
+<br>
+<hr>
+<br>
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## GET default routes
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+There are 4 main routes used to retrieve data (`get`) as a JSON:
 
-## Laravel Sponsors
+- `/salePoints`
+<br>
+Returns in `data` all sale points created. `idSalePoints` (integer), `salePointName` (string), `description` (string), `isActive`(integer [0 | 1]).
+<br>
+Example:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+```json
+{
+    "msg": "",
+    "dev": "",
+    "type": "",
+    "data": [
+        {
+            "idSalePoints": 1,
+            "salePointName": "First Sale Point",
+            "description": "I'm the first sale point",
+            "isActive": 1,
+        },
+        {
+            "idSalePoints": 2,
+            "salePointName": "Another Sale Point (But Deactivated)",
+            "description": "I'm another sale point",
+            "isActive": 0,
+        },
+    ]
+}
+```
 
-### Premium Partners
+<br>
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+- `/clients`
+<br>
+Returns in `data` all clients created. `idClients` (integer), `clientName` (string), `idSalePoints`(integer), `isActive`(integer [0 | 1]).
+<br>
+Example:
 
-## Contributing
+```json
+{
+    "msg": "",
+    "dev": "",
+    "type": "",
+    "data": [
+        {
+            "idClients": 1,
+            "clientName": "James 'The Crazy' Borg",
+            "idSalePoints": 1,
+            "isActive": 0,
+        },
+        {
+            "idClients": 2,
+            "clientName": "Maryanne Foster",
+            "idSalePoints": 1,
+            "isActive": 1,
+        },
+    ]
+}
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+<br>
 
-## Code of Conduct
+- `/products`
+<br>
+Returns in `data` all products created. `idProducts` (integer), `productName` (string), `standardValue`(decimal), `isActive`(integer [0 | 1]).
+<br>
+Example:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```json
+{
+    "msg": "",
+    "dev": "",
+    "type": "",
+    "data": [
+        {
+            "idProducts": 1,
+            "productName": "Dino Toothbrush",
+            "standardValue": 52.35,
+            "isActive": 0,
+        },
+        {
+            "idProducts": 3,
+            "productName": "Gigantic Ornamental Flower",
+            "standardValue": 112.50,
+            "isActive": 1,
+        },
+    ]
+}
+```
 
-## Security Vulnerabilities
+<br>
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- `/sales`
+<br>
+Returns in `data` all sales created. `idSales` (integer), `idClients` (integer), `idSalePoints` (integer), `deliverDateTime` (datetime), `status` (string [ic: in course | cl: canceled | fs: finished]), `created_at` (laravel datetime), `updated_at` (laravel datetime), `items`(JSON array). <br>
+`items` JSON array  contains `idSaleItems` (integer) (starting from 0 for each sale), `idSales` (integer), `idProducts` (integer), `quantity` (decimal), `soldPrice` (decimal), `discountApplied` (decimal).
+<br>
+Example:
 
-## License
+```json
+{
+    "msg": "",
+    "dev": "",
+    "type": "",
+    "data": [
+        {
+            "idSales": 1,
+            "idClients": 1,
+            "idSalePoints": 1,
+            "deliverDateTime": "2022-10-01 14:35:12",
+            "status": "fs",
+            "created_at": "2022-11-27T19:42:25.000000Z",
+            "updated_at": "2022-11-27T21:45:53.000000Z",
+            "items": [
+                {
+                    "idSaleItems": 0,
+                    "idSales": 1,
+                    "idProducts": 1,
+                    "quantity": "1.00",
+                    "soldPrice": "12.50",
+                    "discountApplied": "0.00"
+                },
+                {
+                    "idSaleItems": 1,
+                    "idSales": 1,
+                    "idProducts": 2,
+                    "quantity": "4.00",
+                    "soldPrice": "2.50",
+                    "discountApplied": "10.00"
+                }
+            ]
+        }
+    ]
+}
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+<br>
+
+## Retrieving by ID
+To retrieve a register from its ID, we need to send a JSON array with the key based on each requisition for its specific retrieve route. (The logic is based on `generalRoute/sameButInSingular`)
+<br><br>
+ A POST to `/sales/sale` with the following multipart form-data body:
+
+```json
+// (integer) ID from a register created
+{
+    "idSales":1
+}
+```
+
+will result in a JSON array like in a `GET` requisition (in the section above) but with a single sale data register.
+<br>
+
+The same is valid for the other routes. Like the following:
+```json
+// to /salePoints/salePoint use:
+{
+    "idSalePoints": 1123
+}
+
+// to /clients/client use:
+{
+    "idClients": 3211
+}
+
+// to /products/product use:
+{
+    "idProducts": 43312
+}
+```
+
+<br>
+
+## Deactivating registers (coming soon)
+
+<br>
+
+## Creating/Updating data (coming soon)
+
+
+

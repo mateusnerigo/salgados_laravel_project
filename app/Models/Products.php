@@ -51,6 +51,14 @@ class Products extends Model {
     }
 
     /**
+     * Auxiliary function to return if 'active true' status
+     * @param Builder $query
+     */
+    public function scopeIsActive(Builder $query) {
+        return $query->where('isActive', 1);
+    }
+
+    /**
      * Auxiliary function to updates a product to a defined status
      * @param Builder $query
      * @param string $activeStatus (0/1)

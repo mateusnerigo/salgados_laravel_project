@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('idSales', false);
             $table->unsignedBigInteger('idProducts', false);
             $table->decimal('quantity', 19, 2, true)->default(0.00);
-            $table->decimal('selledPrice', 19, 2, true)->default(0.00);
+            $table->decimal('soldPrice', 19, 2, true)->default(0.00);
             $table->decimal('discountApplied', 19, 2, true)->default(0.00);
             $table->timestamps();
 

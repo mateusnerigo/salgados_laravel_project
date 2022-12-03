@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse,
     Illuminate\Http\Request,
+    Illuminate\Support\Facades\DB,
     App\Models\Sales,
     App\Models\SaleItems,
     App\Models\Clients,
     App\Models\SalePoints,
-    App\Models\Products,
-    Throwable,
-    DateTime;
+    Throwable;
 
 class SalesController extends Controller {
     /**
@@ -18,15 +17,7 @@ class SalesController extends Controller {
      * @return JsonResponse
      */
     public function index() {
-        $sales = Sales::all();
-
-        if (!empty($sales)) {
-            foreach($sales AS $index => $sale) {
-                $sales[$index]['items'] = $this->getSaleItemsBySaleId($sale->idSales);
-            }
-        }
-
-        return jsonResponse(data: $sales);
+        return jsonResponse(data: $this->getAllSales());
     }
 
     /**
@@ -40,21 +31,22 @@ class SalesController extends Controller {
             return dataSendedErrorResponse();
         }
 
-        $idSales = json_decode($request->data, true)['idSales'];
+        $idSales = json_decode($request->data, true)['idSales'] ?? null;
 
         // verifies sale id
-        if (!empty($idSales) && empty($this->getSaleById($idSales))) {
-            return jsonAlertResponse(
-                'O código da venda enviada não pertence a nenhuma venda cadastrado.',
-                "Sended variable value: {$idSales}"
-            );
+        $idSalesValidationError = $this->validateId(
+            new Sales,
+            $idSales,
+            'venda',
+            '$idSales',
+            false
+        );
+
+        if (!empty($idSalesValidationError)) {
+            return $idSalesValidationError;
         }
 
-        // prepares sale information
-        $sale = $this->getSaleById($idSales);
-        $sale['items'] = $this->getSaleItemsBySaleId($idSales);
-
-        return jsonResponse(data: $sale);
+        return jsonResponse(data: $this->getSaleById($idSales));
     }
 
     /**
@@ -70,19 +62,25 @@ class SalesController extends Controller {
 
         // receives the data sended in a variable
         $requestData = json_decode($request->data, true);
-        $sale = $this->getSaleById($requestData['idSales']);
+        $idSales = $requestData['idSales'] ?? null;
 
-        // verifies client id
-        if (!empty($requestData['idSales']) && empty($sale)) {
-            return jsonAlertResponse(
-                'O código da venda enviada não pertence a nenhuma venda cadastrada.',
-                "Sended variable value: {$requestData['idSales']}"
-            );
+        // verifies sale id
+        $idSalesValidationError = $this->validateId(
+            new Sales,
+            $idSales,
+            'venda',
+            '$idSales',
+            false
+        );
+
+        if (!empty($idSalesValidationError)) {
+            return $idSalesValidationError;
         }
 
+        $sale = $this->getSaleById($idSales);
 
         // verifies sale point id
-        $statusValidationError = $this->validateStatus(
+        $statusValidationError = $this->validateSaleStatus(
             $sale['status'],
             ($requestData['status'] ?? null)
         );
@@ -122,13 +120,25 @@ class SalesController extends Controller {
         $requestData = json_decode($request->data, true);
 
         // verifies client id
-        $idClientsValidationError = $this->validateIdClients($requestData['idClients'] ?? null);
+        $idClientsValidationError = $this->validateId(
+            new Clients,
+            ($requestData['idClients'] ?? null),
+            'cliente',
+            "\$requestData['idClients']"
+        );
+
         if (!empty($idClientsValidationError)) {
             return $idClientsValidationError;
         }
 
         // verifies sale point id
-        $idSalePointsValidationError = $this->validateIdSalePoints($requestData['idSalePoints'] ?? null);
+        $idSalePointsValidationError = $this->validateId(
+            new SalePoints,
+            ($requestData['idSalePoints'] ?? null),
+            'ponto de venda',
+            "\$requestData['idSalePoints']"
+        );
+
         if (!empty($idSalePointsValidationError)) {
             return $idSalePointsValidationError;
         }
@@ -139,20 +149,41 @@ class SalesController extends Controller {
             return $deliverDatetimeValidationError;
         }
 
-        // verifies items sended
+        //verifies items sended
         $saleItemsValidationError = $this->validateSaleItems($requestData['items'] ?? null);
         if (!empty($saleItemsValidationError)) {
             return $saleItemsValidationError;
         }
 
         try {
+            // transaction for sale integrity
+            DB::beginTransaction();
+
             // creates a new sale
-            Sales::create([
-                'idSalePoints'    => $requestData['idSalePoints'],
-                'idClients'       => $requestData['idClients'],
+            $newSaleId = Sales::insertGetId([
+                'idSalePoints' => $requestData['idSalePoints'],
+                'idClients' => $requestData['idClients'],
                 'deliverDatetime' => $requestData['deliverDatetime'],
             ]);
+
+            // saves sale items
+            foreach ($requestData['items'] as $itemIndex => $item) {
+                SaleItems::create([
+                    'idSaleItems' => $itemIndex,
+                    'idSales' => $newSaleId,
+                    'idProducts' => $item['idProducts'],
+                    'quantity' => $item['quantity'],
+                    'soldPrice' => $item['soldPrice'],
+                    'discountApplied' => $item['discountApplied'] ?? 0
+                ]);
+            }
+
+            // commit if it runs correctely
+            DB::commit();
         } catch (Throwable $e) {
+            // rollback if it fails
+            DB::rollBack();
+
             // returns a message if an error occurs
             return jsonAlertResponse(
                 "Há algo errado com os dados enviados.",
@@ -165,20 +196,45 @@ class SalesController extends Controller {
     }
 
     /**
-     * Auxiliary function to return a sale by id
-     * @param int $idSales
+     * Return all sales with its items
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    private function getSaleById($idSales = 0) {
-        return Sales::firstWhere([['idSales', '=', $idSales]]);
+    private function getAllSales() {
+        $sales = Sales::all();
+
+        if (!empty($sales)) {
+            foreach ($sales as $index => $sale) {
+                $sales[$index]['items'] = $this->getSaleItemsByIdSales($sale->idSales);
+            }
+        }
+
+        return $sales;
+    }
+
+    /**
+     * Return a sale with its items by id
+     * @param int $idSales Sale id to search
+     * @return mixed
+     */
+    private function getSaleById(int $idSales) {
+        $sale = Sales::getById($idSales)
+            ->first();
+
+        if (!empty($sale)) {
+            $sale['items'] = $this->getSaleItemsByIdSales($idSales);
+        }
+
+        return $sale;
     }
 
     /**
      * Auxiliary function to return the items from a sale by its id
      * @param int $idSales
+     * @return mixed
      */
-    private function getSaleItemsBySaleId($idSales) {
-        return SaleItems::where('idSales', $idSales)
-            ->orderBy('idSaleItems')
+    private function getSaleItemsByIdSales(int $idSales) {
+        return SaleItems::whereIdSales($idSales)
+            ->ordered()
             ->get();
     }
 }

@@ -27,14 +27,19 @@ class ProductsController extends Controller {
             return dataSendedErrorResponse();
         }
 
-        $idProducts = json_decode($request->data, true)['idProducts'];
+        $idProducts = json_decode($request->data, true)['idProducts'] ?? null;
 
         // verifies product id
-        if (!empty($idProducts) && empty(Products::getById($idProducts)->first())) {
-            return jsonAlertResponse(
-                'O código do produto enviado não pertence a nenhum produto cadastrado.',
-                "Sended variable value: {$idProducts}"
-            );
+        $idProductsValidationError = $this->validateId(
+            new Products,
+            $idProducts,
+            'produto',
+            '$idProducts',
+            false
+        );
+
+        if (!empty($idProductsValidationError)) {
+            return $idProductsValidationError;
         }
 
         return jsonResponse(data: Products::getById($idProducts)->first());
@@ -52,41 +57,37 @@ class ProductsController extends Controller {
         }
 
         // sets the id received
-        $idProducts = json_decode($request->data, true)['idProducts'];
+        $idProducts = json_decode($request->data, true)['idProducts'] ?? null;
 
         // verifies product id
-        if (!empty($idProducts) && empty(Products::getById($idProducts)->first())) {
-            return jsonAlertResponse(
-                'O código do produto enviado não pertence a nenhum produto cadastrado.',
-                "Sended variable value: {$idProducts}"
-            );
+        $idProductsValidationError = $this->validateId(
+            new Products,
+            ($idProducts ?? null),
+            'produto',
+            '$idProducts',
+            false
+        );
+
+        if (!empty($idProductsValidationError)) {
+            return $idProductsValidationError;
         }
 
         // get the actual product status by id
-        $statusProduct = Products::getById($idProducts)->first();
-
-        // verifies the returned data
-        if (empty($statusProduct)) {
-            return jsonAlertResponse(
-                'Há algo errado com a atualização deste produto.',
-                "No product founded with the id sended ({$idProducts})"
-            );
-        }
+        $productToToggle = Products::getById($idProducts);
 
         // default values
         $statusToChange = 0;
         $endMessagePart = 'desativado';
 
         // changes if the actual status is set to 0 (zero)
-        if ($statusProduct['isActive'] == 0) {
+        if ($productToToggle->first()['isActive'] == 0) {
             $statusToChange = 1;
             $endMessagePart = 'ativado';
         }
 
         try {
             // updates the product founded
-            Products::getById($idProducts)
-                ->setActiveStatus($statusToChange);
+            $productToToggle->setActiveStatus($statusToChange);
         } catch (Throwable $e) {
             // returns it if an error occurs
             return jsonAlertResponse(
@@ -114,16 +115,21 @@ class ProductsController extends Controller {
         $requestData = json_decode($request->data, true);
 
         // verifies product id
-        if (!empty($requestData['idProducts']) && empty(Products::getById($requestData['idProducts']))) {
-            return jsonAlertResponse(
-                'O código do produto enviado não pertence a nenhum produto cadastrado.',
-                "Sended variable value: {$requestData['idProducts']}"
-            );
+        $idProductsValidationError = $this->validateId(
+            new Products,
+            ($requestData['idProducts'] ?? null),
+            'produto',
+            "\$requestData['idProducts']"
+        );
+
+        if(!empty($idProductsValidationError)) {
+            return $idProductsValidationError;
         }
+
 
         // verifies product name
         $productNameValidationError = $this->validateText(
-            ($requestData['productName'] ?? ''),
+            ($requestData['productName'] ?? null),
             'Nome do produto',
             'productName'
         );
@@ -134,7 +140,7 @@ class ProductsController extends Controller {
 
         // verifies standard value
         $standardValueValidationError = $this->validateText(
-            ($requestData['standardValue'] ?? ''),
+            ($requestData['standardValue'] ?? null),
             'Valor padrão',
             'standardValue',
             validateNumeric: true
@@ -166,7 +172,7 @@ class ProductsController extends Controller {
 
                 Products::create($arrayCreateOrUpdate);
 
-                // updates a client already created
+            // updates a client already created
             } else {
                 $endMessagePart = 'atualizado';
 

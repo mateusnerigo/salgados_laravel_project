@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory,
+    Illuminate\Database\Eloquent\Builder,
+    Illuminate\Database\Eloquent\Model;
 
 class SaleItems extends Model {
     use HasFactory;
@@ -18,7 +19,25 @@ class SaleItems extends Model {
         'idSales',
         'idProducts',
         'quantity',
-        'selledPrice',
+        'soldPrice',
         'discountApplied'
     ];
+
+    /**
+     * Auxiliary function to return a sale by id
+     * @param Builder $query
+     * @param int $idSales
+     */
+    public function scopeWhereIdSales(Builder $query, $idSales) {
+        return $query->where('idSales', $idSales);
+    }
+
+    /**
+     * Auxiliary function to order returned items
+     * @param Builder $query
+     * @param int $idSales
+     */
+    public function scopeOrdered(Builder $query) {
+        return $query->orderBy('idSaleItems');
+    }
 }

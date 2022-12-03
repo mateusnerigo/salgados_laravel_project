@@ -28,14 +28,19 @@ class ClientsController extends Controller {
             return dataSendedErrorResponse();
         }
 
-        $idClients = json_decode($request->data, true)['idClients'] ;
+        $idClients = json_decode($request->data, true)['idClients'] ?? null;
 
         // verifies client id
-        if (!empty($idClients) && empty(Clients::getById($idClients)->first())) {
-            return jsonAlertResponse(
-                'O código do cliente enviado não pertence a nenhum cliente cadastrado.',
-                "Sended variable value: {$idClients}"
-            );
+        $idClientsValidationError = $this->validateId(
+            new Clients,
+            $idClients,
+            'cliente',
+            '$idClients',
+            false
+        );
+
+        if (!empty($idClientsValidationError)) {
+            return $idClientsValidationError;
         }
 
         return jsonResponse(data: Clients::getById($idClients)->first());
@@ -53,41 +58,37 @@ class ClientsController extends Controller {
         }
 
         // sets the id received
-        $idClients = json_decode($request->data, true)['idClients'];
+        $idClients = json_decode($request->data, true)['idClients'] ?? null;
 
         // verifies client id
-        if (!empty($idClients) && empty(Clients::getById($idClients)->first())) {
-            return jsonAlertResponse(
-                'O código do cliente enviado não pertence a nenhum cliente cadastrado.',
-                "Sended variable value: {$idClients}"
-            );
+        $idClientsValidationError = $this->validateId(
+            new Clients,
+            $idClients,
+            'cliente',
+            '$idClients',
+            false
+        );
+
+        if (!empty($idClientsValidationError)) {
+            return $idClientsValidationError;
         }
 
         // get the actual client status by id
-        $statusClient = Clients::getById($idClients)->first();
-
-        // verifies the returned data
-        if (empty($statusClient)) {
-            return jsonAlertResponse(
-                'Há algo errado com a atualização deste cliente.',
-                "No client founded with the id sended ({$idClients})"
-            );
-        }
+        $clientToToggle = Clients::getById($idClients);
 
         // default values
         $statusToChange = 0;
         $endMessagePart = 'desativado';
 
         // changes if the actual status is set to 0 (zero)
-        if ($statusClient['isActive'] == 0) {
+        if ($clientToToggle->first()['isActive'] == 0) {
             $statusToChange = 1;
             $endMessagePart = 'ativado';
         }
 
         try {
             // updates the client founded
-            Clients::getById($idClients)
-                ->setActiveStatus($statusToChange);
+            $clientToToggle->setActiveStatus($statusToChange);
         } catch (Throwable $e) {
             // returns it if an error occurs
             return jsonAlertResponse(
@@ -119,7 +120,7 @@ class ClientsController extends Controller {
             new Clients,
             ($requestData['idClients'] ?? null),
             'cliente',
-            'idClients'
+            "\$requestData['idClients']"
         );
 
         if (!empty($idClientsValidationError)) {
@@ -142,7 +143,7 @@ class ClientsController extends Controller {
             new SalePoints,
             ($requestData['idSalePoints'] ?? null),
             'ponto de venda',
-            'idSalePoints'
+            "\$requestData['idSalePoints']"
         );
 
         if (!empty($idSalePointsValidationError)) {

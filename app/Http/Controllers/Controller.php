@@ -18,21 +18,24 @@ class Controller extends BaseController {
 
     /**
      * Generic function to validate sended values
-     * @param $value            string  Value to validate
+     * @param $value            mixed   Value to validate
      * @param $valueFieldName   string  Value API fieldname
      * @param $variableName     string  API variable to be sended
      * @param $obrigatory       bool    Sets obrigatory validation
      * @param $validateLength   bool    Sets length validation
      * @param $lengthToValidate int     Sets the length for its validation
+     * @param $validateNumeric int      Sets the numeric validation
+     * @param $validateInteger int      Sets the integer validation
      */
     public function validateText(
-        string $value = '',
+        $value = '',
         string $valueFieldName = '[ERROR]',
         string $variableName = '',
         bool   $obrigatory = true,
         bool   $validateLength = true,
         int    $lengthToValidate = 3,
-        bool   $validateNumeric = false
+        bool   $validateNumeric = false,
+        bool   $validateInteger = false
     ) {
         $msgTemplate = "O campo '{$valueFieldName}'";
 
@@ -40,80 +43,35 @@ class Controller extends BaseController {
         if (!isset($value)) {
             return jsonAlertResponse(
                 "{$msgTemplate} não foi enviado corretamente.",
-                "Empty variable: \$requestData['{$variableName}']."
+                "Empty variable: {$variableName}."
             );
         }
 
         // if it is empty
         if ($obrigatory) {
-            if (empty($value)) {
+            if (empty($value) && ($value != 0)) {
                 return jsonAlertResponse("{$msgTemplate} deve ser preenchido.");
             }
         }
 
-        if ($validateNumeric) {
-            $validateLength = false;
-        }
-
         // if it is shorter than 3 characters
-        if ($validateLength) {
+        if ($validateLength && !$validateNumeric && !$validateInteger) {
             if (strlen($value) < $lengthToValidate) {
                 return jsonAlertResponse("{$msgTemplate} deve ter pelo menos 3 letras.");
             }
         }
 
         // if it is not numeric
-        if ($validateNumeric) {
+        if ($validateNumeric && !$validateInteger) {
             if (!is_numeric($value)) {
-                return jsonAlertResponse("{$msgTemplate} deve ser um número decimal (Exemplo: 19.60)");
+                return jsonAlertResponse("{$msgTemplate} deve ser um número decimal. (Exemplo: 19.60)");
             }
         }
 
-        return '';
-    }
-
-    /**
-     * Auxiliary function to validate sale points sended id
-     * @param $idSalePoints
-     */
-    public static function validateIdSalePoints($idSalePoints) {
-        // if it is not set
-        if (!isset($idSalePoints)) {
-            return jsonAlertResponse(
-                "O ponto de venda deste cliente não foi enviado corretamente.",
-                "Empty variable: \$requestData['idSalePoints']."
-            );
-        }
-
-        // sets value for the next verification
-        if (empty($idClients)) {
-            $idClients = 0;
-        }
-
-        // if it is not numeric
-        if (!is_numeric($idSalePoints)) {
-            return jsonAlertResponse(
-                "O ponto de venda deste cliente foi enviado de forma equívoca.",
-                "Sended variable value: {$idSalePoints}"
-            );
-        }
-
-        // if the id was sended
-        if ($idSalePoints > 0) {
-            // if the sale point isn't registered
-            if (empty(SalePoints::getById($idSalePoints)->first())) {
-                return jsonAlertResponse(
-                    "O ponto de venda enviado não está cadastrado corretamente.",
-                    "Sended variable value: {$idSalePoints}"
-                );
-            }
-
-            // if the sale point isn't active
-            if (empty(SalePoints::getById($idSalePoints)->isActive()->first())) {
-                return jsonAlertResponse(
-                    "O ponto de venda escolhido não está ativo.",
-                    "Sended variable value: {$idSalePoints}"
-                );
+        // if it is not integer
+        if ($validateInteger) {
+            if (!is_int($value)) {
+                return jsonAlertResponse("{$msgTemplate} deve ser um número inteiro.");
             }
         }
 
@@ -122,14 +80,24 @@ class Controller extends BaseController {
 
     /**
      * Auxiliary function to validate sended ids
-     * @param $idToValidate
+     * @param mixed  $model             Model to operate
+     * @param mixed  $idToValidate      Id to validate
+     * @param string $idFrom            String for return message
+     * @param string $variableName      String for dev return message
+     * @param bool   $validateIsActive  Sets active verification
      */
-    public static function validateId($model, $idToValidate, string $idFrom = '[ERROR]', string $variableName = '') {
+    public static function validateId(
+        $model,
+        $idToValidate,
+        string $idFrom = '[ERROR]',
+        string $variableName = '',
+        bool $validateIsActive = true
+    ) {
         // if it is not set
         if (!isset($idToValidate)) {
             return jsonAlertResponse(
                 "A identificação do {$idFrom} não foi enviada corretamente.",
-                "Empty variable: \$requestData['{$variableName}']."
+                "Empty variable: {$variableName}."
             );
         }
 
@@ -151,17 +119,20 @@ class Controller extends BaseController {
             // if the client isn't registered
             if (empty($model::getById($idToValidate)->first())) {
                 return jsonAlertResponse(
-                    "O {$idFrom} enviado não está cadastrado corretamente.",
+                    "O código do {$idFrom} enviado não pertence a nenhum cadastrado.",
                     "Sended variable value: {$idToValidate}"
                 );
             }
 
-            // if the client isn't active
-            if (empty($model::getById($idToValidate)->isActive()->first())) {
-                return jsonAlertResponse(
-                    "O {$idFrom} escolhido não está ativo.",
-                    "Sended variable value: {$idToValidate}"
-                );
+            // if validation for 'active' status is true
+            if ($validateIsActive) {
+                // if the client isn't active
+                if (empty($model::getById($idToValidate)->isActive()->first())) {
+                    return jsonAlertResponse(
+                        "O {$idFrom} escolhido não está ativo.",
+                        "Sended variable value: {$idToValidate}"
+                    );
+                }
             }
         }
 
@@ -173,7 +144,7 @@ class Controller extends BaseController {
      * @param $actualStatus
      * @param $newStatus
      */
-    public static function validateStatus($actualStatus, $newStatus) {
+    public static function validateSaleStatus($actualStatus, $newStatus) {
         // if it is not set
         if (!isset($newStatus)) {
             return jsonAlertResponse(
@@ -210,7 +181,7 @@ class Controller extends BaseController {
         if (!isset($deliverDateTime)) {
             return jsonAlertResponse(
                 "A data e hora de entrega não foram enviadas corretamente.",
-                "Empty variable: \$requestData['deliverDateTime']."
+                "Empty variable: \$requestData['deliverDatetime']."
             );
         }
 
@@ -235,15 +206,15 @@ class Controller extends BaseController {
      */
     public function validateSaleItems($itemsToValidate) {
         // if it is not set
-        if (!isset($itemsToValidate)) {
+        if (!isset($itemsToValidate) || empty($itemsToValidate)) {
             return jsonAlertResponse(
                 "Os itens da venda não foram enviados.",
                 "Empty variable: \$requestData['items']."
             );
         }
 
-        foreach ($itemsToValidate as $item) {
-            $itemValidationError = $this->validateSingleSaleItem($item);
+        foreach ($itemsToValidate as $itemIndex => $item) {
+            $itemValidationError = $this->validateSingleSaleItem($item, ($itemIndex + 1));
 
             if (!empty($itemValidationError)) {
                 return $itemValidationError;
@@ -256,13 +227,55 @@ class Controller extends BaseController {
     /**
      * Auxiliary function to validate a single item from a sale
      * @param $itemToValidate
+     * @param $itemIndex
      */
-    public static function validateSingleSaleItem($itemToValidate) {
-        // validar se o id do produto veio
-
-
-        if (empty(Products::getById($itemToValidate['idProducts']))) {
+    public function validateSingleSaleItem($itemToValidate, $itemIndex) {
+        // product id validation/verification
+        $idProductsValidationError = $this->validateId(
+            new Products,
+            ($itemToValidate['idProducts'] ?? null),
+            "produto (linha {$itemIndex})",
+            "\$itemToValidate['idProducts']"
+        );
+        if (!empty($idProductsValidationError)) {
+            return $idProductsValidationError;
         }
+
+        // quantity validation/verification
+        $quantityValidationError = $this->validateText(
+            ($itemToValidate['quantity'] ?? null),
+            "quantidade (linha {$itemIndex})",
+            "\$itemToValidate['quantity']",
+            validateInteger: true
+        );
+        if (!empty($quantityValidationError)) {
+            return $quantityValidationError;
+        }
+
+        // price validation/verification
+        $soldPriceValidationError = $this->validateText(
+            ($itemToValidate['soldPrice'] ?? null),
+            "valor (linha {$itemIndex})",
+            "\$itemToValidate['soldPrice']",
+            validateNumeric: true
+        );
+        if (!empty($soldPriceValidationError)) {
+            return $soldPriceValidationError;
+        }
+
+        // discount validation/verification
+        if (isset($itemToValidate['discountApplied']) && !empty($itemToValidate['discountApplied'])) {
+            $discountAppliedValidationError = $this->validateText(
+                ($itemToValidate['discountApplied'] ?? null),
+                "desconto (linha {$itemIndex})",
+                "\$itemToValidate['discountApplied']",
+                validateNumeric: true
+            );
+        }
+        if (!empty($discountAppliedValidationError)) {
+            return $discountAppliedValidationError;
+        }
+
         return '';
     }
 }

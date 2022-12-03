@@ -26,7 +26,7 @@ class Sales extends Model {
      * @param Builder $query
      * @param int $idSale
      */
-    public function scopeGetById(Builder $query, $idSale) {
-        return $query->where('idSale', $idSale);
+    public function scopeGetById(Builder $query, $idSales) {
+        return $query->where('idSales', $idSales);
     }
 }

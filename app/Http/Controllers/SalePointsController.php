@@ -27,14 +27,19 @@ class SalePointsController extends Controller {
             return dataSendedErrorResponse();
         }
 
-        $idSalePoints = json_decode($request->data, true)['idSalePoints'];
+        $idSalePoints = json_decode($request->data, true)['idSalePoints'] ?? null;
 
         // verifies sale point id
-        if (!empty($idSalePoints) && empty(SalePoints::getById($idSalePoints)->first())) {
-            return jsonAlertResponse(
-                'O código do ponto de venda enviado não pertence a nenhum ponto de venda cadastrado.',
-                "Sended variable value: {$idSalePoints}"
-            );
+        $idSalePointsValidationError = $this->validateId(
+            new SalePoints,
+            $idSalePoints,
+            'ponto de venda',
+            '$idSalePoints',
+            false
+        );
+
+        if (!empty($idSalePointsValidationError)) {
+            return $idSalePointsValidationError;
         }
 
         return jsonResponse(data: SalePoints::getById($idSalePoints)->first());
@@ -52,41 +57,37 @@ class SalePointsController extends Controller {
         }
 
         // sets the id received
-        $idSalePoints = json_decode($request->data, true)['idSalePoints'];
+        $idSalePoints = json_decode($request->data, true)['idSalePoints'] ?? null;
 
         // verifies sale point id
-        if (!empty($idSalePoints) && empty($this->getSalePointById($idSalePoints))) {
-            return jsonAlertResponse(
-                'O código do ponto de venda enviado não pertence a nenhum ponto de venda cadastrado.',
-                "Sended variable value: {$idSalePoints}"
-            );
+        $idSalePointsValidationError = $this->validateId(
+            new SalePoints,
+            $idSalePoints,
+            'ponto de venda',
+            '$idSalePoints',
+            false
+        );
+
+        if (!empty($idSalePointsValidationError)) {
+            return $idSalePointsValidationError;
         }
 
         // get the actual sale point status by id
-        $statusSalePoint = SalePoints::getById($idSalePoints)->first();
-
-        // verifies the returned data
-        if (empty($statusSalePoint)) {
-            return jsonAlertResponse(
-                'Há algo errado com a atualização deste ponto de venda.',
-                "No sale points founded with the id sended ({$idSalePoints})"
-            );
-        }
+        $salePointToToggle = SalePoints::getById($idSalePoints);
 
         // default values
         $statusToChange = 0;
         $endMessagePart = 'desativado';
 
         // changes if the actual status is set to 0 (zero)
-        if ($statusSalePoint['isActive'] == 0) {
+        if ($salePointToToggle->first()['isActive'] == 0) {
             $statusToChange = 1;
             $endMessagePart = 'ativado';
         }
 
         try {
             // updates the sale point founded
-            SalePoints::getById($idSalePoints)
-               ->setActiveStatus($statusToChange);
+            $salePointToToggle->setActiveStatus($statusToChange);
         } catch (Throwable $e) {
             // returns it if an error occurs
             return jsonAlertResponse(
@@ -114,21 +115,33 @@ class SalePointsController extends Controller {
         $requestData = json_decode($request->data, true);
 
         // verifies sale point id
-        if (!empty($requestData['idSalePoints']) && empty($this->getClientById($requestData['idSalePoints']))) {
-            return jsonAlertResponse(
-                'O código do ponto de venda enviado não pertence a nenhum ponto de venda cadastrado.',
-                "Sended variable value: {$requestData['idSalePoints']}"
-            );
+        $idSalePointsValidationError = $this->validateId(
+            new SalePoints,
+            ($requestData['idSalePoints'] ?? null),
+            'ponto de venda',
+            "\$requestData['idSalePoints']"
+        );
+
+        if (!empty($idSalePointsValidationError)) {
+            return $idSalePointsValidationError;
         }
 
         // verifies sale point name
-        $salePointNameValidation = $this->validateSalePointName($requestData['salePointName'] ?? null);
+        $salePointNameValidation = $this->validateText(
+            $requestData['salePointName'] ?? null,
+            'Nome do ponto de venda',
+            'salePointName'
+        );
         if (!empty($salePointNameValidation)) {
             return $salePointNameValidation;
         }
 
+        $salePointAlreadyCreated = SalePoints::whereName($requestData['salePointName'])
+            ->whereDiffId($requestData['idSalePoints'])
+            ->first();
+
         // verifies if the data given matches with a sale point already created
-        if (!empty($this->getSalePointByNameDiffId($requestData['salePointName'], $requestData['idSalePoints']))) {
+        if (!empty($salePointAlreadyCreated)) {
             return jsonAlertResponse('Já existe um ponto de venda cadastrado com esse nome.');
         }
 
@@ -149,7 +162,7 @@ class SalePointsController extends Controller {
             } else {
                 $endMessagePart = 'atualizado';
 
-                SalePoints::where('idSalePoints', $requestData['idSalePoints'])
+                SalePoints::getById($requestData['idSalePoints'])
                     ->update($arrayCreateOrUpdate);
             }
         } catch (Throwable $e) {
@@ -162,54 +175,5 @@ class SalePointsController extends Controller {
 
         // returns with a successfull message
         return jsonSuccessResponse("Ponto de venda {$endMessagePart} com sucesso!");
-    }
-
-    /**
-     * Auxiliary functions to return a sale point by id
-     * @param int $idSalePoints
-     */
-    private function getSalePointById($idSalePoints = 0) {
-        return SalePoints::firstWhere([['idSalePoints', '=', $idSalePoints]]);
-    }
-
-    /**
-     * Auxiliary functions to return a sale point with the given information
-     * (used to find a sale point with a name used by another one)
-     * @param string $salePointName
-     * @param int    $idSalePoints
-     */
-    private function getSalePointByNameDiffId(string $salePointName, int $idSalePoints = 0) {
-        return SalePoints::firstWhere(
-            [
-                ['salePointName', '=', $salePointName],
-                ['idSalePoints', '!=', $idSalePoints]
-            ]
-        );
-    }
-
-    /**
-     * Auxiliary function to validate a new name for a sale point
-     * @param $salePointName
-     */
-    private function validateSalePointName($salePointName) {
-        // if it is not set
-        if (!isset($salePointName)) {
-            return jsonAlertResponse(
-                "O nome do ponto de venda não foi enviado corretamente.",
-                "Empty variable: \$requestData['salePointName']."
-            );
-        }
-
-        // if it is empty
-        if (empty($salePointName)) {
-            return jsonAlertResponse("O nome do ponto de venda deve ser preenchido.");
-        }
-
-        // if it is shorter than 3 characters
-        if (strlen($salePointName) < 3) {
-            return jsonAlertResponse("O nome do ponto de venda deve ter pelo menos 3 letras.");
-        }
-
-        return '';
     }
 }

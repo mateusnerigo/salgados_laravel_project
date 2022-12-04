@@ -167,16 +167,70 @@ The same is valid for the other routes. Like the following:
 ```
 
 ## Deactivate/Activate registers
-It is possible toggle **sale points**, **clients** and **products** registers by sending a **POST** requisiton to its default routes with **/toggle** adition. <br>
+It is possible to toggle **sale points**, **clients** and **products** registers by sending a **POST** requisiton to its default routes with **/toggle** adition. <br>
 The **multipart/form-data body** will follow the pattern in the section above, with the primary key (idSalePoints, idClients, etc.) in its **data** field.<br>
 The routes are:
 - `/salePoints/toggle`
 - `/clients/toggle`
 - `/products/toggle`
 
-## Changing sales status (comming soon)
+## Creating/Updating data
+It is possible to create a **sale point**, a **client**, a **product** or a **sale** by sending a **POST** requisition to its default routes. Using that routes, we can also update a **sale point**, a **client** or a **product**, but we cannot update a sale (yet).<br>
+To create or update a register, use a field called **data** im **multipart/form-data** body with the following data:
+- `/salePoints`: 
+    - **idSalePoints** (integer): If sended, updates an existing register.
+    - **salePointName** (string): A name for a(n) new/existing sale point.
+    - **description** (string): A brief description for you new sale point. Can be sended empty.
+```json
+{
+    "idSalePoints":"",
+    "salePointName": "My new sale point",
+    "description":"It is an awesome sale point with awesome people."
+}
+```
 
-## Creating/Updating data (coming soon)
+- `/clients`:
+    - **idClients** (integer): If sended, updates an existing register.
+    - **clientName** (string): A name for a(n) new/existing client.
+    - **idSalePoints** (int): A default sale point for the client.
+```json
+{
+    "idClients":"",
+    "clientName": "James Revolver",
+    "idSalePoints":"2"
+}
+```
 
+- `/products`:
+    - **idProducts** (integer): If sended, updates an existing register.
+    - **productName** (string): A name for a(n) new/existing client.
+    - **standardValue** (decimal): The default value for the item.
+```json
+{
+    "idProducts":"1",
+    "productName": "A awesome product with a different name",
+    "standardValue":19.60
+}
+```
 
+## Updating sales status 
+A sale can be set to three different status:
+- `ic`: In course (can be updated to `cl`or `fs`)
+- `cl`: Cancelled (cannot be updated)
+- `fs`: Finished (cannot be updated)
 
+In order to update the status of a sale, it is needed to send a **POST** requisition to the route **/sales/updateStatus**. <br>
+The **multipart/form-data body** will need the primary key (idSales) **AND** the new status in its **data** field like the following:
+```json
+{
+    "idSales":1,
+    "status":"cl"
+}
+```
+ <hr>
+ 
+ # Thank you! I'm really glad that you're here!
+ This project is under development and it is planned to be used as a backend API for another project, a VueJS SPA. <br>
+ There's some big needs and updates coming like sales updating and authentication that I will learn and develop.<br> <br>
+ See you! <br>
+ Mateus Neri

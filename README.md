@@ -1,5 +1,16 @@
 # **Salgados Manager**
 API project using Laravel 9
+- [How to configure it](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#how-to-configure-it)
+- [How to use it](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#how-to-use-it)
+    - [Default return](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#default-return)
+    - [GET default routes](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#get-default-routes)
+    - [Retrieving by ID](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#retrieving-by-id)
+    - [Deactivate/Activate registers](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#deactivateactivate-registers)
+    - [Creating/Updating data](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#creatingupdating-data)
+    - [Updating sales status](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#updating-sales-status)
+- [Thank you!](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#thank-you-im-really-glad-that-youre-here)
+
+    
 
 # How to configure it
 - First of all, we need `PHP` and `composer` installed. Also a `PHP server` and `MySQL database` running.

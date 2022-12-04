@@ -1,8 +1,6 @@
 # **Salgados Manager**
 API project using Laravel 9
 
-<br>
-
 # How to configure it
 - First of all, we need `PHP` and `composer` installed. Also a `PHP server` and `MySQL database` running.
 - Copy `.env.example` to `.env` and change the values in order to use it with your MySQL database.
@@ -12,41 +10,29 @@ API project using Laravel 9
 - Run the command `php artisan serve` to start the project.
 - Done, use it like an API to create, retrieve, update and delete data.
 
-<br>
-
 # How to use it
 ## Default return
 The default return is JSON formated and all requisitions returns in the following way:
+- `msg`:  (string) Message for frontend use
+- `dev`:  (string) Message for dev use, more information about errors and exceptions
+- `type`: (string) The type/class of the message. Minded to be used for frontend libraries with default message types
+- `data`: (json array) Returned data from requisition
 ```json
 {
-    // (string) Message for frontend use
     "msg": "",
-
-    // (string) Message for dev use, more information about errors and exceptions
     "dev": "",
-
-    // (string) The type/class of the message.
-    // Minded to be used for frontend libraries with default message types
     "type": "",
-
-    // (json array) Returned data from requisition
     "data": []
 }
 ```
-<br>
 <hr>
-<br>
 
 ## GET default routes
-
 There are 4 main routes used to retrieve data (`get`) as a JSON:
 
-- `/salePoints`
-<br>
-Returns in `data` all sale points created. `idSalePoints` (integer), `salePointName` (string), `description` (string), `isActive`(integer [0 | 1]).
+- `/salePoints`: Returns in `data` all sale points created. `idSalePoints` (integer), `salePointName` (string), `description` (string), `isActive`(integer [0 | 1]).
 <br>
 Example:
-
 ```json
 {
     "msg": "",
@@ -69,14 +55,9 @@ Example:
 }
 ```
 
-<br>
-
-- `/clients`
-<br>
-Returns in `data` all clients created. `idClients` (integer), `clientName` (string), `idSalePoints`(integer), `isActive`(integer [0 | 1]).
+- `/clients`: Returns in `data` all clients created. `idClients` (integer), `clientName` (string), `idSalePoints`(integer), `isActive`(integer [0 | 1]).
 <br>
 Example:
-
 ```json
 {
     "msg": "",
@@ -98,12 +79,7 @@ Example:
     ]
 }
 ```
-
-<br>
-
-- `/products`
-<br>
-Returns in `data` all products created. `idProducts` (integer), `productName` (string), `standardValue`(decimal), `isActive`(integer [0 | 1]).
+- `/products`: Returns in `data` all products created. `idProducts` (integer), `productName` (string), `standardValue`(decimal), `isActive`(integer [0 | 1]).
 <br>
 Example:
 
@@ -128,16 +104,10 @@ Example:
     ]
 }
 ```
-
-<br>
-
-- `/sales`
-<br>
-Returns in `data` all sales created. `idSales` (integer), `idClients` (integer), `idSalePoints` (integer), `deliverDateTime` (datetime), `status` (string [ic: in course | cl: canceled | fs: finished]), `created_at` (laravel datetime), `updated_at` (laravel datetime), `items`(JSON array). <br>
-`items` JSON array  contains `idSaleItems` (integer) (starting from 0 for each sale), `idSales` (integer), `idProducts` (integer), `quantity` (decimal), `soldPrice` (decimal), `discountApplied` (decimal).
+- `/sales`: Returns in `data` all sales created. `idSales` (integer), `idClients` (integer), `idSalePoints` (integer), `deliverDateTime` (datetime), `status` (string [ic: in course | cl: canceled | fs: finished]), `created_at` (laravel datetime), `updated_at` (laravel datetime), `items`(JSON array).
+    - JSON array `items` contains `idSaleItems` (integer) (starting from 0 for each sale), `idSales` (integer), `idProducts` (integer), `quantity` (decimal), `soldPrice` (decimal), `discountApplied` (decimal).
 <br>
 Example:
-
 ```json
 {
     "msg": "",
@@ -174,44 +144,39 @@ Example:
     ]
 }
 ```
-
-<br>
-
 ## Retrieving by ID
-To retrieve a register from its ID, we need to send a JSON array with the key based on each requisition for its specific retrieve route. (The logic is based on `generalRoute/sameButInSingular`)
-<br><br>
- A POST to `/sales/sale` with the following multipart form-data body:
+To retrieve a register from its ID, we need to send a JSON array with the key based on each requisition for its specific retrieve route. (The logic is based on **generalRoute/sameButInSingular**)
+<br>
+A POST to **/sales/sale** with the following multipart form-data body
 
 ```json
-// (integer) ID from a register created
 {
     "idSales":1
 }
 ```
 
-will result in a JSON array like in a `GET` requisition (in the section above) but with a single sale data register.
+will result in a JSON array like in a **GET** requisition (in the section above) but with a single sale data register (**idSales** (integer) is the ID from a register created).
 <br>
 
 The same is valid for the other routes. Like the following:
+- to **/salePoints/salePoint** use **idSalePoints**;
 ```json
-// to /salePoints/salePoint use:
 {
     "idSalePoints": 1123
 }
-
-// to /clients/client use:
+```
+- to **/clients/client** use **idClients**;
+```json
 {
     "idClients": 3211
 }
-
-// to /products/product use:
+```
+- to **/products/product** use **idProducts**;
+```json
 {
     "idProducts": 43312
 }
 ```
-
-<br>
-
 ## Deactivating registers (coming soon)
 
 <br>

@@ -178,7 +178,6 @@ The same is valid for the other routes. Like the following:
 }
 ```
 ## Deactivating registers (coming soon)
-
 ## Creating/Updating data (coming soon)
 
 

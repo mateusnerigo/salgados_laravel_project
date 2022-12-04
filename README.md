@@ -25,14 +25,11 @@ The default return is JSON formated and all requisitions returns in the followin
     "data": []
 }
 ```
-<hr>
 
 ## GET default routes
 There are 4 main routes used to retrieve data (`get`) as a JSON:
 
 - `/salePoints`: Returns in `data` all sale points created. `idSalePoints` (integer), `salePointName` (string), `description` (string), `isActive`(integer [0 | 1]).
-<br>
-Example:
 ```json
 {
     "msg": "",
@@ -56,8 +53,6 @@ Example:
 ```
 
 - `/clients`: Returns in `data` all clients created. `idClients` (integer), `clientName` (string), `idSalePoints`(integer), `isActive`(integer [0 | 1]).
-<br>
-Example:
 ```json
 {
     "msg": "",
@@ -80,9 +75,6 @@ Example:
 }
 ```
 - `/products`: Returns in `data` all products created. `idProducts` (integer), `productName` (string), `standardValue`(decimal), `isActive`(integer [0 | 1]).
-<br>
-Example:
-
 ```json
 {
     "msg": "",
@@ -106,8 +98,6 @@ Example:
 ```
 - `/sales`: Returns in `data` all sales created. `idSales` (integer), `idClients` (integer), `idSalePoints` (integer), `deliverDateTime` (datetime), `status` (string [ic: in course | cl: canceled | fs: finished]), `created_at` (laravel datetime), `updated_at` (laravel datetime), `items`(JSON array).
     - JSON array `items` contains `idSaleItems` (integer) (starting from 0 for each sale), `idSales` (integer), `idProducts` (integer), `quantity` (decimal), `soldPrice` (decimal), `discountApplied` (decimal).
-<br>
-Example:
 ```json
 {
     "msg": "",
@@ -145,16 +135,14 @@ Example:
 }
 ```
 ## Retrieving by ID
-To retrieve a register from its ID, we need to send a JSON array with the key based on each requisition for its specific retrieve route. (The logic is based on **generalRoute/sameButInSingular**)
+To retrieve a register from its ID, we need to send a JSON field named **data** with the key based on each requisition for its specific retrieve route. (The logic is based on **generalRoute/sameButInSingular**)
 <br>
-A POST to **/sales/sale** with the following multipart form-data body
-
+A POST to **/sales/sale** with the following **multipart/form-data** body
 ```json
 {
     "idSales":1
 }
 ```
-
 will result in a JSON array like in a **GET** requisition (in the section above) but with a single sale data register (**idSales** (integer) is the ID from a register created).
 <br>
 
@@ -177,7 +165,17 @@ The same is valid for the other routes. Like the following:
     "idProducts": 43312
 }
 ```
-## Deactivating registers (coming soon)
+
+## Deactivate/Activate registers
+It is possible toggle **sale points**, **clients** and **products** registers by sending a **POST** requisiton to its default routes with **/toggle** adition. <br>
+The **multipart/form-data body** will follow the pattern in the section above, with the primary key (idSalePoints, idClients, etc.) in its **data** field.<br>
+The routes are:
+- `/salePoints/toggle`
+- `/clients/toggle`
+- `/products/toggle`
+
+## Changing sales status (comming soon)
+
 ## Creating/Updating data (coming soon)
 
 

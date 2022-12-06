@@ -186,7 +186,7 @@ The routes are:
 - `/api/products/toggle`
 
 ## Creating/Updating data
-It is possible to create a **sale point**, a **client**, a **product** or a **sale** by sending a **POST** requisition to its default routes. Using that routes, we can also update a **sale point**, a **client** or a **product**, but we cannot update a sale (yet).<br>
+It is possible to create a **sale point**, a **client**, a **product** or a **sale** by sending a **POST** requisition to its default routes. Using that routes, we can also update a **sale point**, a **client**, a **product** and a **sale**.<br>
 To create or update a register, use a field called **data** im **multipart/form-data** body with the following data:
 - `/api/salePoints`:
     - **idSalePoints** (integer): If sended, updates an existing register.
@@ -203,7 +203,7 @@ To create or update a register, use a field called **data** im **multipart/form-
 - `/api/clients`:
     - **idClients** (integer): If sended, updates an existing register.
     - **clientName** (string): A name for a(n) new/existing client.
-    - **idSalePoints** (int): A default sale point for the client.
+    - **idSalePoints** (integer): A default sale point for the client.
 ```json
 {
     "idClients":"",
@@ -221,6 +221,33 @@ To create or update a register, use a field called **data** im **multipart/form-
     "idProducts":"1",
     "productName": "A awesome product with a different name",
     "standardValue":19.60
+}
+```
+
+- `/api/sales`:
+    - **idSales** (integer): If sended, updates an existing register.
+    - **idSalePoints** (integer): A sale point for the sale.
+    - **idClients** (integer): A client for the sale.
+    - **deliverDateTime** (datetime 'Y-m-d H:i:s'): The deliver date and time for a sale.
+    - **items** (JSON array): An item array with the products of a sale. It contains:
+        - **idProducts** (integer): The item id
+        - **quantity** (decimal): The quantity sold for that item
+        - **soldPrice** (decimal): The total value for that item and quantity
+        - **discountAppied** (decimal): The discount applied for the value of that item
+```json
+{
+    "idSales":12,
+    "idSalePoints":4,
+    "idClients":7,
+    "deliverDateTime":"2022-10-10 13:15:00",
+    "items":[
+        {
+            "idProducts":3,
+            "quantity":1.5,
+            "soldPrice":9.00,
+            "discountAppied":0.0,
+        }
+    ],
 }
 ```
 
@@ -242,6 +269,6 @@ The **multipart/form-data body** will need the primary key (idSales) **AND** the
 
  # Thank you! I'm really glad that you're here!
  This project is under development and it is planned to be used as a backend API for another project, a VueJS SPA. <br>
- There's some big needs and updates coming like sales updating and authentication that I will learn and develop.<br> <br>
+ There's some big needs and updates coming like authentication that I will learn and develop.<br> <br>
  See you! <br>
  Mateus Neri

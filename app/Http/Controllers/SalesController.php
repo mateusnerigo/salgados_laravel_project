@@ -119,6 +119,18 @@ class SalesController extends Controller {
         // receives the data sended in a variable
         $requestData = json_decode($request->data, true);
 
+        // verifies sale id
+        $idSalesValidationError = $this->validateId(
+            new Sales,
+            ($requestData['idSales'] ?? null),
+            'venda',
+            "\$requestData['idSales']"
+        );
+
+        if (!empty($idSalesValidationError)) {
+            return $idSalesValidationError;
+        }
+
         // verifies client id
         $idClientsValidationError = $this->validateId(
             new Clients,
@@ -159,21 +171,40 @@ class SalesController extends Controller {
             // transaction for sale integrity
             DB::beginTransaction();
 
-            // creates a new sale
-            $newSaleId = Sales::insertGetId([
+            // array for insert or update
+            $arrayCreateOrUpdate = [
                 'idSalePoints' => $requestData['idSalePoints'],
                 'idClients' => $requestData['idClients'],
                 'deliverDatetime' => $requestData['deliverDatetime'],
-            ]);
+            ];
+
+            // creates a new sale
+            if (empty($requestData['idSales'])) {
+                $endMessagePart = 'cadastrada';
+
+                $idSales = Sales::insertGetId($arrayCreateOrUpdate);
+
+            // updates a sale already created
+            } else {
+                $endMessagePart = 'atualizada';
+
+                $idSales = $requestData['idSales'];
+                Sales::getById($idSales)
+                    ->update($arrayCreateOrUpdate);
+
+                // removes the items from the sale updated
+                SaleItems::whereIdSales($idSales)
+                    ->delete();
+            }
 
             // saves sale items
             foreach ($requestData['items'] as $itemIndex => $item) {
                 SaleItems::create([
-                    'idSaleItems' => $itemIndex,
-                    'idSales' => $newSaleId,
-                    'idProducts' => $item['idProducts'],
-                    'quantity' => $item['quantity'],
-                    'soldPrice' => $item['soldPrice'],
+                    'idSaleItems'     => $itemIndex,
+                    'idSales'         => $idSales,
+                    'idProducts'      => $item['idProducts'],
+                    'quantity'        => $item['quantity'],
+                    'soldPrice'       => $item['soldPrice'],
                     'discountApplied' => $item['discountApplied'] ?? 0
                 ]);
             }
@@ -192,7 +223,7 @@ class SalesController extends Controller {
         }
 
         // returns with a successfull message
-        return jsonSuccessResponse("Venda cadastrada com sucesso!");
+        return jsonSuccessResponse("Venda {$endMessagePart} com sucesso!");
     }
 
     /**

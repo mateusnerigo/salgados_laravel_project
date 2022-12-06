@@ -119,7 +119,7 @@ class Controller extends BaseController {
             // if the client isn't registered
             if (empty($model::getById($idToValidate)->first())) {
                 return jsonAlertResponse(
-                    "O código do {$idFrom} enviado não pertence a nenhum cadastrado.",
+                    "O código do {$idFrom} enviado não pertence a nenhum registro cadastrado.",
                     "Sended variable value: {$idToValidate}"
                 );
             }

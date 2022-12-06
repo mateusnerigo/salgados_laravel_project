@@ -29,4 +29,12 @@ class Sales extends Model {
     public function scopeGetById(Builder $query, $idSales) {
         return $query->where('idSales', $idSales);
     }
+
+    /**
+     * Auxiliary function to return if 'active true' status
+     * @param Builder $query
+     */
+    public function scopeIsActive(Builder $query) {
+        return $query->where('status', 'ic');
+    }
 }

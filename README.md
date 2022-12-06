@@ -10,7 +10,7 @@ API project using Laravel 9
     - [Updating sales status](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#updating-sales-status)
 - [Thank you!](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#thank-you-im-really-glad-that-youre-here)
 
-    
+
 
 # How to configure it
 - First of all, we need `PHP` and `composer` installed. Also a `PHP server` and `MySQL database` running.
@@ -38,9 +38,9 @@ The default return is JSON formated and all requisitions returns in the followin
 ```
 
 ## GET default routes
-There are 4 main routes used to retrieve data (`get`) as a JSON:
+There are 4 main routes used to retrieve data (`GET`) as a JSON:
 
-- `/salePoints`: Returns in `data` all sale points created. `idSalePoints` (integer), `salePointName` (string), `description` (string), `isActive`(integer [0 | 1]).
+- `/api/salePoints`: Returns in `data` all sale points created. `idSalePoints` (integer), `salePointName` (string), `description` (string), `isActive`(integer [0 | 1]).
 ```json
 {
     "msg": "",
@@ -63,7 +63,7 @@ There are 4 main routes used to retrieve data (`get`) as a JSON:
 }
 ```
 
-- `/clients`: Returns in `data` all clients created. `idClients` (integer), `clientName` (string), `idSalePoints`(integer), `isActive`(integer [0 | 1]).
+- `/api/clients`: Returns in `data` all clients created. `idClients` (integer), `clientName` (string), `idSalePoints`(integer), `isActive`(integer [0 | 1]).
 ```json
 {
     "msg": "",
@@ -85,7 +85,7 @@ There are 4 main routes used to retrieve data (`get`) as a JSON:
     ]
 }
 ```
-- `/products`: Returns in `data` all products created. `idProducts` (integer), `productName` (string), `standardValue`(decimal), `isActive`(integer [0 | 1]).
+- `/api/products`: Returns in `data` all products created. `idProducts` (integer), `productName` (string), `standardValue`(decimal), `isActive`(integer [0 | 1]).
 ```json
 {
     "msg": "",
@@ -107,7 +107,7 @@ There are 4 main routes used to retrieve data (`get`) as a JSON:
     ]
 }
 ```
-- `/sales`: Returns in `data` all sales created. `idSales` (integer), `idClients` (integer), `idSalePoints` (integer), `deliverDateTime` (datetime), `status` (string [ic: in course | cl: canceled | fs: finished]), `created_at` (laravel datetime), `updated_at` (laravel datetime), `items`(JSON array).
+- `/api/sales`: Returns in `data` all sales created. `idSales` (integer), `idClients` (integer), `idSalePoints` (integer), `deliverDateTime` (datetime), `status` (string [ic: in course | cl: canceled | fs: finished]), `created_at` (laravel datetime), `updated_at` (laravel datetime), `items`(JSON array).
     - JSON array `items` contains `idSaleItems` (integer) (starting from 0 for each sale), `idSales` (integer), `idProducts` (integer), `quantity` (decimal), `soldPrice` (decimal), `discountApplied` (decimal).
 ```json
 {
@@ -146,9 +146,9 @@ There are 4 main routes used to retrieve data (`get`) as a JSON:
 }
 ```
 ## Retrieving by ID
-To retrieve a register from its ID, we need to send a JSON field named **data** with the key based on each requisition for its specific retrieve route. (The logic is based on **generalRoute/sameButInSingular**)
+To retrieve a register from its ID, we need to send a JSON field named **data** with the key based on each requisition for its specific retrieve route. (The logic is based on **api/generalRoute/sameButInSingular**)
 <br>
-A POST to **/sales/sale** with the following **multipart/form-data** body
+A POST to **/api/sales/sale** with the following **multipart/form-data** body
 ```json
 {
     "idSales":1
@@ -158,19 +158,19 @@ will result in a JSON array like in a **GET** requisition (in the section above)
 <br>
 
 The same is valid for the other routes. Like the following:
-- to **/salePoints/salePoint** use **idSalePoints**;
+- to **/api/salePoints/salePoint** use **idSalePoints**;
 ```json
 {
     "idSalePoints": 1123
 }
 ```
-- to **/clients/client** use **idClients**;
+- to **/api/clients/client** use **idClients**;
 ```json
 {
     "idClients": 3211
 }
 ```
-- to **/products/product** use **idProducts**;
+- to **/api/products/product** use **idProducts**;
 ```json
 {
     "idProducts": 43312
@@ -181,14 +181,14 @@ The same is valid for the other routes. Like the following:
 It is possible to toggle **sale points**, **clients** and **products** registers by sending a **POST** requisiton to its default routes with **/toggle** adition. <br>
 The **multipart/form-data body** will follow the pattern in the section above, with the primary key (idSalePoints, idClients, etc.) in its **data** field.<br>
 The routes are:
-- `/salePoints/toggle`
-- `/clients/toggle`
-- `/products/toggle`
+- `/api/salePoints/toggle`
+- `/api/clients/toggle`
+- `/api/products/toggle`
 
 ## Creating/Updating data
 It is possible to create a **sale point**, a **client**, a **product** or a **sale** by sending a **POST** requisition to its default routes. Using that routes, we can also update a **sale point**, a **client** or a **product**, but we cannot update a sale (yet).<br>
 To create or update a register, use a field called **data** im **multipart/form-data** body with the following data:
-- `/salePoints`: 
+- `/api/salePoints`:
     - **idSalePoints** (integer): If sended, updates an existing register.
     - **salePointName** (string): A name for a(n) new/existing sale point.
     - **description** (string): A brief description for you new sale point. Can be sended empty.
@@ -200,7 +200,7 @@ To create or update a register, use a field called **data** im **multipart/form-
 }
 ```
 
-- `/clients`:
+- `/api/clients`:
     - **idClients** (integer): If sended, updates an existing register.
     - **clientName** (string): A name for a(n) new/existing client.
     - **idSalePoints** (int): A default sale point for the client.
@@ -212,7 +212,7 @@ To create or update a register, use a field called **data** im **multipart/form-
 }
 ```
 
-- `/products`:
+- `/api/products`:
     - **idProducts** (integer): If sended, updates an existing register.
     - **productName** (string): A name for a(n) new/existing client.
     - **standardValue** (decimal): The default value for the item.
@@ -224,13 +224,13 @@ To create or update a register, use a field called **data** im **multipart/form-
 }
 ```
 
-## Updating sales status 
+## Updating sales status
 A sale can be set to three different status:
 - `ic`: In course (can be updated to `cl`or `fs`)
 - `cl`: Cancelled (cannot be updated)
 - `fs`: Finished (cannot be updated)
 
-In order to update the status of a sale, it is needed to send a **POST** requisition to the route **/sales/updateStatus**. <br>
+In order to update the status of a sale, it is needed to send a **POST** requisition to the route **/api/sales/updateStatus**. <br>
 The **multipart/form-data body** will need the primary key (idSales) **AND** the new status in its **data** field like the following:
 ```json
 {
@@ -239,7 +239,7 @@ The **multipart/form-data body** will need the primary key (idSales) **AND** the
 }
 ```
  <hr>
- 
+
  # Thank you! I'm really glad that you're here!
  This project is under development and it is planned to be used as a backend API for another project, a VueJS SPA. <br>
  There's some big needs and updates coming like sales updating and authentication that I will learn and develop.<br> <br>

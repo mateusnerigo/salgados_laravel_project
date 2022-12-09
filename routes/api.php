@@ -26,7 +26,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Sale Points
 Route::controller(SalePointsController::class)
     ->prefix('salePoints')
-    ->group(function() {
+    ->middleware('auth:sanctum')
+    ->group(function () {
         Route::get('', 'index');
         Route::post('', 'save');
         Route::post('/salePoint', 'show');
@@ -36,6 +37,7 @@ Route::controller(SalePointsController::class)
 // Clients
 Route::controller(ClientsController::class)
     ->prefix('clients')
+    ->middleware('auth:sanctum')
     ->group(function () {
         Route::get('', 'index');
         Route::post('', 'save');
@@ -46,6 +48,7 @@ Route::controller(ClientsController::class)
 // Products
 Route::controller(ProductsController::class)
     ->prefix('products')
+    ->middleware('auth:sanctum')
     ->group(function () {
         Route::get('', 'index');
         Route::post('', 'save');
@@ -56,6 +59,7 @@ Route::controller(ProductsController::class)
 // Sales
 Route::controller(SalesController::class)
     ->prefix('sales')
+    ->middleware('auth:sanctum')
     ->group(function () {
         Route::get('', 'index');
         Route::post('', 'save');

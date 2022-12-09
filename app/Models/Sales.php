@@ -19,6 +19,8 @@ class Sales extends Model {
         'idSalePoints',
         'deliverDateTime',
         'status',
+        'idUsersCreation',
+        'idUsersLastUpdate',
     ];
 
     /**

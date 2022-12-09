@@ -15,6 +15,8 @@ return new class extends Migration {
             $table->bigIncrements('idSales');
             $table->unsignedBigInteger('idClients', false);
             $table->unsignedBigInteger('idSalePoints', false);
+            $table->unsignedBigInteger('idUsersCreation', false)->nullable();
+            $table->unsignedBigInteger('idUsersLastUpdate', false)->nullable();
             $table->dateTime('deliverDateTime')->nullable();
             $table->set('status', ['ic', 'cl', 'fs'])
                 ->default('ic')
@@ -32,6 +34,18 @@ return new class extends Migration {
                 ->references('idSalePoints')
                 ->on('sale_points')
                 ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
+            $table->foreign('idUsersCreation')
+                ->references('idUsers')
+                ->on('users')
+                ->nullOnDelete()
+                ->cascadeOnUpdate();
+
+            $table->foreign('idUsersLastUpdate')
+                ->references('idUsers')
+                ->on('users')
+                ->nullOnDelete()
                 ->cascadeOnUpdate();
         });
     }

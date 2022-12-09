@@ -15,8 +15,22 @@ return new class extends Migration {
             $table->bigIncrements('idProducts');
             $table->string('productName', 100);
             $table->decimal('standardValue', 19, 2, true)->default(0.00);
+            $table->unsignedBigInteger('idUsersCreation', false)->nullable();
+            $table->unsignedBigInteger('idUsersLastUpdate', false)->nullable();
             $table->boolean('isActive')->default(1);
             $table->timestamps();
+
+            $table->foreign('idUsersCreation')
+                ->references('idUsers')
+                ->on('users')
+                ->nullOnDelete()
+                ->cascadeOnUpdate();
+
+            $table->foreign('idUsersLastUpdate')
+                ->references('idUsers')
+                ->on('users')
+                ->nullOnDelete()
+                ->cascadeOnUpdate();
         });
     }
 

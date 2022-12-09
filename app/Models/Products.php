@@ -20,7 +20,9 @@ class Products extends Model {
     protected $fillable = [
         'productName',
         'standardValue',
-        'isActive'
+        'isActive',
+        'idUsersCreation',
+        'idUsersLastUpdate',
     ];
 
     /**

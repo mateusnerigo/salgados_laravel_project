@@ -20,6 +20,8 @@ class Clients extends Model {
     protected $fillable = [
         'clientName',
         'idSalePoints',
+        'idUsersCreation',
+        'idUsersLastUpdate',
         'isActive'
     ];
 

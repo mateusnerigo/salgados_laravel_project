@@ -3,7 +3,8 @@
 use Illuminate\Http\Request,
     Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\ClientsController,
+use App\Http\Controllers\AuthController,
+    App\Http\Controllers\ClientsController,
     App\Http\Controllers\SalePointsController,
     App\Http\Controllers\SalesController,
     App\Http\Controllers\ProductsController;
@@ -19,9 +20,10 @@ use App\Http\Controllers\ClientsController,
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::get('/', function () { return ''; })->name('index');
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
 
 // Sale Points
 Route::controller(SalePointsController::class)

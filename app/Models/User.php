@@ -3,10 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Factories\HasFactory,
+    Illuminate\Foundation\Auth\User as Authenticatable,
+    Illuminate\Notifications\Notifiable,
+    Laravel\Sanctum\HasApiTokens,
+    Illuminate\Database\Eloquent\Builder;
 
 class User extends Authenticatable
 {
@@ -21,7 +22,9 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'firstName',
+        'lastName',
+        'userName',
         'email',
         'password',
     ];
@@ -44,4 +47,22 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Auxiliary function to return a user by email
+     * @param Builder $query
+     * @param string  $email
+     */
+    public function scopeWhereEmail(Builder $query, string $email) {
+        return $query->where('email', $email);
+    }
+
+    /**
+     * Auxiliary function to return a user by userName
+     * @param Builder $query
+     * @param string  $userName
+     */
+    public function scopeWhereUserName(Builder $query, string $userName) {
+        return $query->where('userName', $userName);
+    }
 }

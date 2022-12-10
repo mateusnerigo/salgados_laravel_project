@@ -5,11 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests,
     Illuminate\Foundation\Bus\DispatchesJobs,
     Illuminate\Foundation\Validation\ValidatesRequests,
-    Illuminate\Routing\Controller as BaseController;
-use App\Models\SalePoints,
-    App\Models\Clients,
-    App\Models\Products;
-use DateTime;
+    Illuminate\Routing\Controller as BaseController,
+    App\Models\Products,
+    App\Models\User,
+    DateTime;
 
 class Controller extends BaseController {
     use AuthorizesRequests,
@@ -24,8 +23,9 @@ class Controller extends BaseController {
      * @param $obrigatory       bool    Sets obrigatory validation
      * @param $validateLength   bool    Sets length validation
      * @param $lengthToValidate int     Sets the length for its validation
-     * @param $validateNumeric int      Sets the numeric validation
-     * @param $validateInteger int      Sets the integer validation
+     * @param $validateNumeric  bool    Sets the numeric validation
+     * @param $validateInteger  bool    Sets the integer validation
+     * @param $validateEmail    bool    Sets the email validation
      */
     public function validateText(
         $value = '',
@@ -35,7 +35,8 @@ class Controller extends BaseController {
         bool   $validateLength = true,
         int    $lengthToValidate = 3,
         bool   $validateNumeric = false,
-        bool   $validateInteger = false
+        bool   $validateInteger = false,
+        bool   $validateEmail = false
     ) {
         $msgTemplate = "O campo '{$valueFieldName}'";
 
@@ -72,6 +73,13 @@ class Controller extends BaseController {
         if ($validateInteger) {
             if (!is_int($value)) {
                 return jsonAlertResponse("{$msgTemplate} deve ser um número inteiro.");
+            }
+        }
+
+        // if is email validation active, verifies if it is a valid email
+        if ($validateEmail) {
+            if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                return jsonAlertResponse("{$msgTemplate} deve ser um email válido.");
             }
         }
 
@@ -214,7 +222,10 @@ class Controller extends BaseController {
         }
 
         foreach ($itemsToValidate as $itemIndex => $item) {
-            $itemValidationError = $this->validateSingleSaleItem($item, ($itemIndex + 1));
+            $itemValidationError = $this->validateSingleSaleItem(
+                $item,
+                ($itemIndex + 1)
+            );
 
             if (!empty($itemValidationError)) {
                 return $itemValidationError;

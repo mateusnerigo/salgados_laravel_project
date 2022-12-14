@@ -6,11 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory,
     Illuminate\Foundation\Auth\User as Authenticatable,
     Illuminate\Notifications\Notifiable,
+    Illuminate\Database\Eloquent\Builder,
     Laravel\Sanctum\HasApiTokens,
-    Illuminate\Database\Eloquent\Builder;
+    Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
-{
+class User extends Authenticatable implements JWTSubject {
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $primaryKey = 'idUsers';
@@ -65,4 +65,20 @@ class User extends Authenticatable
     public function scopeWhereUserName(Builder $query, string $userName) {
         return $query->where('userName', $userName);
     }
+
+	/**
+	 * Get the identifier that will be stored in the subject claim of the JWT.
+	 * @return mixed
+	 */
+	public function getJWTIdentifier() {
+        return $this->getKey();
+	}
+
+	/**
+	 * Return a key value array, containing any custom claims to be added to the JWT.
+	 * @return array
+	 */
+	public function getJWTCustomClaims() {
+        return [];
+	}
 }

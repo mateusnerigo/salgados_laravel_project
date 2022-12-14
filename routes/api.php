@@ -20,15 +20,16 @@ use App\Http\Controllers\AuthController,
 |
 */
 
-Route::get('/', function () { return 'Sem acesso'; })->name('index');
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout']);
+Route::group([
+    'middleware' => 'api'
+], function ($router) {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-// Sale Points
-Route::controller(SalePointsController::class)
+    // Sale Points
+    Route::controller(SalePointsController::class)
     ->prefix('salePoints')
-    ->middleware('auth:sanctum')
     ->group(function () {
         Route::get('', 'index');
         Route::post('', 'save');
@@ -36,10 +37,9 @@ Route::controller(SalePointsController::class)
         Route::post('/toggle', 'toggleActive');
     });
 
-// Clients
-Route::controller(ClientsController::class)
+    // Clients
+    Route::controller(ClientsController::class)
     ->prefix('clients')
-    ->middleware('auth:sanctum')
     ->group(function () {
         Route::get('', 'index');
         Route::post('', 'save');
@@ -47,10 +47,9 @@ Route::controller(ClientsController::class)
         Route::post('/toggle', 'toggleActive');
     });
 
-// Products
-Route::controller(ProductsController::class)
+    // Products
+    Route::controller(ProductsController::class)
     ->prefix('products')
-    ->middleware('auth:sanctum')
     ->group(function () {
         Route::get('', 'index');
         Route::post('', 'save');
@@ -58,13 +57,13 @@ Route::controller(ProductsController::class)
         Route::post('/toggle', 'toggleActive');
     });
 
-// Sales
-Route::controller(SalesController::class)
+    // Sales
+    Route::controller(SalesController::class)
     ->prefix('sales')
-    ->middleware('auth:sanctum')
     ->group(function () {
         Route::get('', 'index');
         Route::post('', 'save');
         Route::post('/sale', 'show');
         Route::post('/updateStatus', 'updateStatus');
     });
+});

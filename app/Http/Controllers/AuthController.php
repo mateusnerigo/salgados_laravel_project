@@ -39,14 +39,28 @@ class AuthController extends Controller {
             );
         }
 
+        $token = auth()->attempt([
+            'userName' => $requestData['userName'],
+            'password' => $requestData['password']
+        ]);
+
+        if ($token) {
+            // returns with a successfull message
+            return jsonResponse(
+                "Usuário cadastrado com sucesso!",
+                'success',
+                data: [
+                    'access_token' => $token,
+                    'token_type' => 'bearer',
+                    'expires_in' => auth()->factory()->getTTL() * 60
+                ]
+            );
+        }
+
         // returns with a successfull message
         return jsonResponse(
-            "Usuário cadastrado com sucesso!",
-            'success',
-            data: [
-                'access_token' => $user->createToken('authToken')->plainTextToken,
-                'token_type' => 'Bearer'
-            ]
+            "Usuário cadastrado com sucesso, mas houve falha ao logar!",
+            'warning'
         );
     }
 
@@ -75,17 +89,15 @@ class AuthController extends Controller {
             'userName' => $requestData['userName']
         ];
 
-        if(Auth::attempt($authCredentials)) {
-            $request->session()->regenerate();
-            $user = User::whereUserName($requestData['userName'])->first();
-
+        if($token = auth()->attempt($authCredentials)) {
             // returns with a successfull message
             return jsonResponse(
                 "Usuário logado com sucesso!",
                 'success',
                 data: [
-                    'access_token' => $user->createToken('authToken')->plainTextToken,
-                    'token_type' => 'Bearer'
+                    'access_token' => $token,
+                    'token_type' => 'bearer',
+                    'expires_in' => auth()->factory()->getTTL() * 60
                 ]
             );
         }
@@ -93,10 +105,8 @@ class AuthController extends Controller {
         return jsonAlertResponse('Dados de acesso inválidos.');
     }
 
-    public function logout(Request $request) {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+    public function logout() {
+        auth()->logout();
 
         // returns with a successfull message
         return jsonSuccessResponse("Usuário deslogado com sucesso!");

@@ -20,7 +20,7 @@ use App\Http\Controllers\AuthController,
 |
 */
 
-Route::get('/', function () { return ''; })->name('index');
+Route::get('/', function () { return 'Sem acesso'; })->name('index');
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);

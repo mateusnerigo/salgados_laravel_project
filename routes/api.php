@@ -23,9 +23,9 @@ use App\Http\Controllers\AuthController,
 Route::group([
     'middleware' => 'api'
 ], function ($router) {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('logout', [AuthController::class, 'logout']);
 
     // Sale Points
     Route::controller(SalePointsController::class)
@@ -33,8 +33,8 @@ Route::group([
     ->group(function () {
         Route::get('', 'index');
         Route::post('', 'save');
-        Route::post('/salePoint', 'show');
-        Route::post('/toggle', 'toggleActive');
+        Route::post('salePoint', 'show');
+        Route::post('toggle', 'toggleActive');
     });
 
     // Clients
@@ -43,8 +43,8 @@ Route::group([
     ->group(function () {
         Route::get('', 'index');
         Route::post('', 'save');
-        Route::post('/client', 'show');
-        Route::post('/toggle', 'toggleActive');
+        Route::post('client', 'show');
+        Route::post('toggle', 'toggleActive');
     });
 
     // Products
@@ -53,8 +53,8 @@ Route::group([
     ->group(function () {
         Route::get('', 'index');
         Route::post('', 'save');
-        Route::post('/product', 'show');
-        Route::post('/toggle', 'toggleActive');
+        Route::post('product', 'show');
+        Route::post('toggle', 'toggleActive');
     });
 
     // Sales
@@ -63,7 +63,7 @@ Route::group([
     ->group(function () {
         Route::get('', 'index');
         Route::post('', 'save');
-        Route::post('/sale', 'show');
-        Route::post('/updateStatus', 'updateStatus');
+        Route::post('sale', 'show');
+        Route::post('updateStatus', 'updateStatus');
     });
 });

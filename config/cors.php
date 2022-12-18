@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['GET', 'POST'],
 
-    'allowed_origins' => ['http://localhost:8080'],
+    'allowed_origins' => [env("ALLOWED_APP_ORIGIN")],
 
     'allowed_origins_patterns' => [],
 

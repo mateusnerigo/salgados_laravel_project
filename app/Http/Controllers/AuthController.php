@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request,
     Illuminate\Support\Facades\Hash,
-    Illuminate\Support\Facades\Auth,
     App\Models\User,
     Throwable;
 
@@ -86,7 +85,8 @@ class AuthController extends Controller {
 
         $authCredentials = [
             'password' => $requestData['password'],
-            'userName' => $requestData['userName']
+            'userName' => $requestData['userName'],
+            'isActive' => 1
         ];
 
         if($token = auth()->attempt($authCredentials)) {

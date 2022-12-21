@@ -7,13 +7,29 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests,
     Illuminate\Foundation\Validation\ValidatesRequests,
     Illuminate\Routing\Controller as BaseController,
     App\Models\Products,
-    App\Models\User,
     DateTime;
 
 class Controller extends BaseController {
     use AuthorizesRequests,
         DispatchesJobs,
         ValidatesRequests;
+
+    function __construct() {
+        // only AuthController should accept unauthorized access
+        if (get_called_class() != AUTH_CONTROLLER) {
+            $this->hasUserAccess();
+        }
+    }
+
+    /**
+     * Verifies if the user is authenticated. The authorization must be sended in header options in all requests
+     * @return void
+     */
+    private function hasUserAccess() {
+        if (empty(auth()->user())) {
+            abort(401);
+        }
+    }
 
     /**
      * Generic function to validate sended values

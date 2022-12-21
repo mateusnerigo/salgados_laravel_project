@@ -16,8 +16,7 @@ function jsonResponse(string $msg = '', string $type = '', string $dev = '', $da
             'msg'  => $msg,
             'dev'  => $dev,
             'type' => $type,
-            'data' => $data,
-
+            'data' => $data
         ])
         ->withHeaders([
             'Content-Type' => 'json'

@@ -105,6 +105,12 @@ class AuthController extends Controller {
         return jsonAlertResponse('Dados de acesso inválidos.');
     }
 
+    public function verifyUserAccess() {
+        return jsonResponse(data: [
+            'hasAccess' => $this->hasUserAccess() ? 1 : 0
+        ]);
+    }
+
     public function logout() {
         auth()->logout();
 

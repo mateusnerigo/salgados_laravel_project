@@ -32,39 +32,35 @@ Route::group([
     Route::controller(SalePointsController::class)
     ->prefix('salePoints')
     ->group(function () {
-        Route::get('', 'index');
+        Route::get('/{idSalePoints?}', 'index');
+        Route::get('toggle/{idSalePoints}', 'toggleActive');
         Route::post('', 'save');
-        Route::post('salePoint', 'show');
-        Route::post('toggle', 'toggleActive');
     });
 
     // Clients
     Route::controller(ClientsController::class)
     ->prefix('clients')
     ->group(function () {
-        Route::get('', 'index');
+        Route::get('/{idClients?}', 'index');
+        Route::get('toggle/{idClients}', 'toggleActive');
         Route::post('', 'save');
-        Route::post('client', 'show');
-        Route::post('toggle', 'toggleActive');
     });
 
     // Products
     Route::controller(ProductsController::class)
     ->prefix('products')
     ->group(function () {
-        Route::get('', 'index');
+        Route::get('/{idProducts?}', 'index');
+        Route::get('toggle/{idProducts}', 'toggleActive');
         Route::post('', 'save');
-        Route::post('product', 'show');
-        Route::post('toggle', 'toggleActive');
     });
 
     // Sales
     Route::controller(SalesController::class)
     ->prefix('sales')
     ->group(function () {
-        Route::get('', 'index');
+        Route::get('/{isSales?}', 'index');
+        Route::get('updateStatus/{idSales}/{status}', 'updateStatus');
         Route::post('', 'save');
-        Route::post('sale', 'show');
-        Route::post('updateStatus', 'updateStatus');
     });
 });

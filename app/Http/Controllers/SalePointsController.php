@@ -9,26 +9,24 @@ use Illuminate\Http\JsonResponse,
 
 class SalePointsController extends Controller {
     /**
-     * Returns all sale points created
+     * Returns sale points created
+     * @param Request $request
      * @return JsonResponse
      */
-    public function index(): JsonResponse {
+    public function index(Request $request): JsonResponse {
+        if (!empty($request->idSalePoints)) {
+            return $this->show($request->idSalePoints);
+        }
+
         return jsonResponse(data: SalePoints::all());
     }
 
     /**
      * Returns a sale point created by id
-     * @param Request $request
+     * @param mixed $idSalePoints
      * @return JsonResponse
      */
-    public function show(Request $request): JsonResponse {
-        // properly receive the request information
-        if (isAnEmptyRequest($request)) {
-            return dataSendedErrorResponse();
-        }
-
-        $idSalePoints = json_decode($request->data, true)['idSalePoints'] ?? null;
-
+    private function show($idSalePoints): JsonResponse {
         // verifies sale point id
         $idSalePointsValidationError = $this->validateId(
             new SalePoints,
@@ -51,13 +49,8 @@ class SalePointsController extends Controller {
      * @return JsonResponse
      */
     public function toggleActive(Request $request): JsonResponse {
-        // properly receive the request information
-        if (isAnEmptyRequest($request)) {
-            return dataSendedErrorResponse();
-        }
-
         // sets the id received
-        $idSalePoints = json_decode($request->data, true)['idSalePoints'] ?? null;
+        $idSalePoints = $request->idSalePoints ?? null;
 
         // verifies sale point id
         $idSalePointsValidationError = $this->validateId(

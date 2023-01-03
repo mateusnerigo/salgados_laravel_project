@@ -13,26 +13,24 @@ use Illuminate\Http\JsonResponse,
 
 class SalesController extends Controller {
     /**
-     * Returns all sales created
+     * Returns sales created
+     * @param Request $request
      * @return JsonResponse
      */
-    public function index() {
+    public function index(Request $request): JsonResponse {
+        if (!empty($request->idSales)) {
+            return $this->show($request->idSales);
+        }
+
         return jsonResponse(data: $this->getAllSales());
     }
 
     /**
      * Returns a sale created by id
-     * @param Request $request
+     * @param mixed $idSales
      * @return JsonResponse
      */
-    public function show(Request $request): JsonResponse {
-        // properly receive the request information
-        if (isAnEmptyRequest($request)) {
-            return dataSendedErrorResponse();
-        }
-
-        $idSales = json_decode($request->data, true)['idSales'] ?? null;
-
+    private function show($idSales): JsonResponse {
         // verifies sale id
         $idSalesValidationError = $this->validateId(
             new Sales,
@@ -55,14 +53,9 @@ class SalesController extends Controller {
      * @return JsonResponse
      */
     public function updateStatus(Request $request): JsonResponse {
-        // properly receive the request information
-        if (isAnEmptyRequest($request)) {
-            return dataSendedErrorResponse();
-        }
-
         // receives the data sended in a variable
-        $requestData = json_decode($request->data, true);
-        $idSales = $requestData['idSales'] ?? null;
+        $idSales = $request->idSales ?? null;
+        $targetStatus = $request->status ?? null;
 
         // verifies sale id
         $idSalesValidationError = $this->validateId(
@@ -82,7 +75,7 @@ class SalesController extends Controller {
         // verifies sale point id
         $statusValidationError = $this->validateSaleStatus(
             $sale['status'],
-            ($requestData['status'] ?? null)
+            $targetStatus
         );
 
         if (!empty($statusValidationError)) {
@@ -91,8 +84,8 @@ class SalesController extends Controller {
 
         try {
             // updates the sle founded
-            Sales::where('idSales', $requestData['idSales'])
-                ->update(['status' => $requestData['status']]);
+            Sales::where('idSales', $idSales)
+                ->update(['status' => $targetStatus]);
         } catch (Throwable $e) {
             // returns it if an error occurs
             return jsonAlertResponse(

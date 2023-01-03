@@ -11,25 +11,23 @@ use Illuminate\Http\JsonResponse,
 class ClientsController extends Controller {
     /**
      * Returns all clients created
+     * @param Request $request
      * @return JsonResponse
      */
-    public function index() {
+    public function index(Request $request): JsonResponse {
+        if (!empty($request->idClients)) {
+            return $this->show($request->idClients);
+        }
+
         return jsonResponse(data: Clients::all());
     }
 
     /**
      * Returns a client created by id
-     * @param Request $request
+     * @param mixed $idClients
      * @return JsonResponse
      */
-    public function show(Request $request): JsonResponse {
-        // properly receive the request information
-        if (isAnEmptyRequest($request)) {
-            return dataSendedErrorResponse();
-        }
-
-        $idClients = json_decode($request->data, true)['idClients'] ?? null;
-
+    private function show($idClients): JsonResponse {
         // verifies client id
         $idClientsValidationError = $this->validateId(
             new Clients,
@@ -52,13 +50,8 @@ class ClientsController extends Controller {
      * @return JsonResponse
      */
     public function toggleActive(Request $request): JsonResponse {
-        // properly receive the request information
-        if (isAnEmptyRequest($request)) {
-            return dataSendedErrorResponse();
-        }
-
         // sets the id received
-        $idClients = json_decode($request->data, true)['idClients'] ?? null;
+        $idClients = $request->idClients ?? null;
 
         // verifies client id
         $idClientsValidationError = $this->validateId(

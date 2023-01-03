@@ -10,25 +10,23 @@ use Illuminate\Http\JsonResponse,
 class ProductsController extends Controller {
     /**
      * Returns all products created
+     * @param Request $request
      * @return JsonResponse
      */
-    public function index() {
+    public function index(Request $request): JsonResponse {
+        if (!empty($request->idProducts)) {
+            return $this->show($request->idProducts);
+        }
+
         return jsonResponse(data: Products::all());
     }
 
     /**
      * Returns a product created by id
-     * @param Request $request
+     * @param mixed $idProducts
      * @return JsonResponse
      */
-    public function show(Request $request): JsonResponse {
-        // properly receive the request information
-        if (isAnEmptyRequest($request)) {
-            return dataSendedErrorResponse();
-        }
-
-        $idProducts = json_decode($request->data, true)['idProducts'] ?? null;
-
+    private function show($idProducts): JsonResponse {
         // verifies product id
         $idProductsValidationError = $this->validateId(
             new Products,
@@ -51,13 +49,8 @@ class ProductsController extends Controller {
      * @return JsonResponse
      */
     public function toggleActive(Request $request): JsonResponse {
-        // properly receive the request information
-        if (isAnEmptyRequest($request)) {
-            return dataSendedErrorResponse();
-        }
-
         // sets the id received
-        $idProducts = json_decode($request->data, true)['idProducts'] ?? null;
+        $idProducts = $request->idProducts ?? null;
 
         // verifies product id
         $idProductsValidationError = $this->validateId(

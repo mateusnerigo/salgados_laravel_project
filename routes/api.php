@@ -26,7 +26,7 @@ Route::group([
     Route::get('verifyAccess', [AuthController::class, 'verifyUserAccess']);
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
-    Route::post('logout', [AuthController::class, 'logout']);
+    Route::get('logout', [AuthController::class, 'logout']);
 
     // Sale Points
     Route::controller(SalePointsController::class)

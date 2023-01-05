@@ -1,8 +1,13 @@
 # **Salgados Manager**
-API project using Laravel 9
+API project using Laravel 9 and JWT authenticaton (jwt-auth). 
 - [How to configure it](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#how-to-configure-it)
 - [How to use it](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#how-to-use-it)
     - [Default return](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#default-return)
+    - [Registration, Login, Login validation and Logout](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#registration-login-logout-and-access-verification)
+        - [Registration](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#registration)
+        - [Login](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#login)
+        - [Logout](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#registration)
+        - [Access verification](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#access-verification)
     - [GET default routes](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#get-default-routes)
     - [Retrieving by ID](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#retrieving-by-id)
     - [Deactivate/Activate registers](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#deactivateactivate-registers)
@@ -23,7 +28,7 @@ API project using Laravel 9
 
 # How to use it
 ## Default return
-The default return is JSON formated and all requisitions returns in the following way:
+The default return is JSON formated, so all requisitions returns in the following way:
 - `msg`:  (string) Message for frontend use
 - `dev`:  (string) Message for dev use, more information about errors and exceptions
 - `type`: (string) The type/class of the message. Minded to be used for frontend libraries with default message types
@@ -37,10 +42,77 @@ The default return is JSON formated and all requisitions returns in the followin
 }
 ```
 
+## Registration, Login, Logout and Access verification
+In order to access all API resources, it is obrigatory to have an Authorization option in all requisitions headers. To achive it you will need to, first of all, register an user on it.  
+
+### Registration
+To register a new user on API it is needed to send a POST requisition containing a **multipart/form-data** body with a JSON named **data** to the route **/api/register** with the following:
+- `fisrtName` (string)
+- `lastName` (string)
+- `userName` (string) (unique)
+- `email` (string) (unique)
+- `password` (string)
+```json
+{
+    "firstName": "Mateus",
+    "lastName": "Neri",
+    "userName": "nerigo", 
+    "email":"mateus@mail.com",
+    "password":"mateus123"
+}
+```
+This requisition returns in default way and the `msg` field in it will show you the status of your requisition.
+
+### Login
+To login a user on API, it is needed to send a POST requisition containing a **multipart/form-data** body with a JSON named **data** to the route **/api/login** with the following:
+- `userName` (string)
+- `password` (string)
+```json
+{
+    "userName": "nerigo", 
+    "password":"mateus123"
+}
+```
+This requisition returns in default way and the `msg` field in it will show you the status of your requisition. In addition, it will have the information needed to use the API routes. This JSON return will be like the following:
+```json
+{
+  "msg": "Usuário logado com sucesso!",
+  "dev": "",
+  "type": "success",
+  "data": {
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjcyOTA4MzM4LCJleHAiOjE2NzI5MTE5MzgsIm5iZiI6MTY3MjkwODMzOCwianRpIjoieWhMSEUxa0RuNjdOcjVKSCIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.ojbcdjzWTI_F5NXdjcDPFQCY0G0nmUfw7ny4riZoC-Y",
+    "token_type": "bearer",
+    "expires_in": 3600
+  }
+}
+```
+
+**IMPORTANT**: In order to access API resources, it is needed to send an Authorization header option with `data.token_type` and `data.access_token` like 
+
+``` 
+bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjcyOTA4MzM4LCJleHAiOjE2NzI5MTE5MzgsIm5iZiI6MTY3MjkwODMzOCwianRpIjoieWhMSEUxa0RuNjdOcjVKSCIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.ojbcdjzWTI_F5NXdjcDPFQCY0G0nmUfw7ny4riZoC-Y
+```
+
+### Logout
+To logout, it is needed to send a GET requisition with the header option as mentioned in [login](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#login). The user will be logged out and the Authorization data wil not be valid anymore.
+
+### Access verification
+An utility route to verifing access, by validate if the given authorization is still valid, is implemented and it works simply by sending a GET requisition to `/api/verifyAccess` with the header option as mentioned in [login](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#login) and returning
+```json
+{
+  "msg": "",
+  "dev": "",
+  "type": "",
+  "data": {
+    "hasAccess": 1
+  }
+}
+```
+
 ## GET default routes
 There are 4 main routes used to retrieve data (`GET`) as a JSON:
 
-- `/api/salePoints`: Returns in `data` all sale points created. `idSalePoints` (integer), `salePointName` (string), `description` (string), `isActive`(integer [0 | 1]).
+- `/api/salePoints`: Returns in `data` the sale points created. The returned fields are `idSalePoints` (integer), `salePointName` (string), `description` (string), `isActive`(integer [0 | 1]).
 ```json
 {
     "msg": "",
@@ -63,7 +135,8 @@ There are 4 main routes used to retrieve data (`GET`) as a JSON:
 }
 ```
 
-- `/api/clients`: Returns in `data` all clients created. `idClients` (integer), `clientName` (string), `idSalePoints`(integer), `isActive`(integer [0 | 1]).
+
+- `/api/clients`: Returns in `data` the clients created. The returned fields are `idClients` (integer), `clientName` (string), `idSalePoints`(integer), `isActive`(integer [0 | 1]).
 ```json
 {
     "msg": "",
@@ -85,7 +158,7 @@ There are 4 main routes used to retrieve data (`GET`) as a JSON:
     ]
 }
 ```
-- `/api/products`: Returns in `data` all products created. `idProducts` (integer), `productName` (string), `standardValue`(decimal), `isActive`(integer [0 | 1]).
+- `/api/products`: Returns in `data` the products created. The returned fields are `idProducts` (integer), `productName` (string), `standardValue`(decimal), `isActive`(integer [0 | 1]).
 ```json
 {
     "msg": "",
@@ -107,7 +180,7 @@ There are 4 main routes used to retrieve data (`GET`) as a JSON:
     ]
 }
 ```
-- `/api/sales`: Returns in `data` all sales created. `idSales` (integer), `idClients` (integer), `idSalePoints` (integer), `deliverDateTime` (datetime), `status` (string [ic: in course | cl: canceled | fs: finished]), `created_at` (laravel datetime), `updated_at` (laravel datetime), `items`(JSON array).
+- `/api/sales`: Returns in `data` the sales created. The returned fields are `idSales` (integer), `idClients` (integer), `idSalePoints` (integer), `deliverDateTime` (datetime), `status` (string [ic: in course | cl: canceled | fs: finished]), `created_at` (laravel datetime), `updated_at` (laravel datetime), `items`(JSON array).
     - JSON array `items` contains `idSaleItems` (integer) (starting from 0 for each sale), `idSales` (integer), `idProducts` (integer), `quantity` (decimal), `soldPrice` (decimal), `discountApplied` (decimal).
 ```json
 {
@@ -146,44 +219,21 @@ There are 4 main routes used to retrieve data (`GET`) as a JSON:
 }
 ```
 ## Retrieving by ID
-To retrieve a register from its ID, we need to send a JSON field named **data** with the key based on each requisition for its specific retrieve route. (The logic is based on **api/generalRoute/sameButInSingular**)
-<br>
-A POST to **/api/sales/sale** with the following **multipart/form-data** body
-```json
-{
-    "idSales":1
-}
-```
-will result in a JSON array like in a **GET** requisition (in the section above) but with a single sale data register (**idSales** (integer) is the ID from a register created).
-<br>
+If you use GET with an ID, that corresponds to the primary key of an entity, like idSalePoints, (ie. `/api/salePoints/1`), it will retrieve only the item that matches to it. 
+
+A GET to `/api/sales/1` will result in a JSON array like in the section above but with a single sale data register.
 
 The same is valid for the other routes. Like the following:
-- to **/api/salePoints/salePoint** use **idSalePoints**;
-```json
-{
-    "idSalePoints": 1123
-}
-```
-- to **/api/clients/client** use **idClients**;
-```json
-{
-    "idClients": 3211
-}
-```
-- to **/api/products/product** use **idProducts**;
-```json
-{
-    "idProducts": 43312
-}
-```
+- to `/api/salePoints/312`;
+- to `/api/clients/213`; 
+- to `/api/products/231`;
 
 ## Deactivate/Activate registers
-It is possible to toggle **sale points**, **clients** and **products** registers by sending a **POST** requisiton to its default routes with **/toggle** adition. <br>
-The **multipart/form-data body** will follow the pattern in the section above, with the primary key (idSalePoints, idClients, etc.) in its **data** field.<br>
-The routes are:
-- `/api/salePoints/toggle`
-- `/api/clients/toggle`
-- `/api/products/toggle`
+It is possible to toggle **sale points**, **clients** and **products** registers by sending a **GET** requisiton to its default routes with `/toggle` following by the id of the register that you want to toggle activation. <br>
+The routes are like:
+- `/api/salePoints/toggle/132`
+- `/api/clients/toggle/123`
+- `/api/products/toggle/321`
 
 ## Creating/Updating data
 It is possible to create a **sale point**, a **client**, a **product** or a **sale** by sending a **POST** requisition to its default routes. Using that routes, we can also update a **sale point**, a **client**, a **product** and a **sale**.<br>
@@ -269,6 +319,6 @@ The **multipart/form-data body** will need the primary key (idSales) **AND** the
 
  # Thank you! I'm really glad that you're here!
  This project is under development and it is planned to be used as a backend API for another project, a VueJS SPA. <br>
- There's some big needs and updates coming like authentication that I will learn and develop.<br> <br>
+ Please, if you like it or not, let me know what are you thinking about it.<br> <br>
  See you! <br>
  Mateus Neri

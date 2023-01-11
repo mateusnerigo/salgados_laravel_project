@@ -22,7 +22,7 @@ class SalesController extends Controller {
             return $this->show($request->idSales);
         }
 
-        return jsonResponse(data: $this->getAllSales());
+        return jsonResponse(data: $this->getAllSales($request));
     }
 
     /**
@@ -85,7 +85,10 @@ class SalesController extends Controller {
         try {
             // updates the sle founded
             Sales::where('idSales', $idSales)
-                ->update(['status' => $targetStatus]);
+                ->update([
+                    'status' => $targetStatus,
+                    'idUsersLastUpdate' => auth()->user()->idUsers
+                ]);
         } catch (Throwable $e) {
             // returns it if an error occurs
             return jsonAlertResponse(
@@ -221,14 +224,25 @@ class SalesController extends Controller {
 
     /**
      * Return all sales with its items
+     * @param Request $request
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    private function getAllSales() {
-        $sales = Sales::all();
+    private function getAllSales(Request $request) {
+        $sales = $this->getAllPaginated(
+            new Sales,
+            $request,
+            [
+                'sales.idSales',
+                'clients.clientName',
+                'sale_points.salePointName',
+                'sales.deliverDateTime',
+                'sales.created_at'
+            ]
+        );
 
-        if (!empty($sales)) {
-            foreach ($sales as $index => $sale) {
-                $sales[$index]['items'] = $this->getSaleItemsByIdSales($sale->idSales);
+        if (!empty($sales['data'])) {
+            foreach ($sales['data'] as $index => $sale) {
+                $sales['data'][$index]['items'] = $this->getSaleItemsByIdSales($sale->idSales);
             }
         }
 

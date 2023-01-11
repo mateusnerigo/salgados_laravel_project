@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory,
     Illuminate\Database\Eloquent\Builder,
-    Illuminate\Database\Eloquent\Model;
+    Illuminate\Database\Eloquent\Model,
+    Illuminate\Support\Facades\DB;
 
 class Clients extends Model {
     use HasFactory;
@@ -12,10 +13,7 @@ class Clients extends Model {
     protected $primaryKey = 'idClients';
     public $incrementing  = true;
 
-    protected $hidden = [
-        'created_at',
-        'updated_at'
-    ];
+    protected $hidden = [];
 
     protected $fillable = [
         'clientName',
@@ -77,6 +75,39 @@ class Clients extends Model {
     public function scopeSetActiveStatus(Builder $query, $activeStatus) {
         return $query->update(
             ['isActive' => $activeStatus]
+        );
+    }
+
+    /**
+     * Auxiliary builder to join with relational tables
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeJoinWithRelations(Builder $query) {
+        return $query
+            ->join('sale_points AS sale_points', 'sale_points.idSalePoints', '=', 'clients.idSalePoints')
+            ->join('users AS users_creation', 'users_creation.idUsers', '=', 'clients.idUsersCreation')
+            ->join('users AS users_update', 'users_update.idUsers', '=', 'clients.idUsersLastUpdate');
+    }
+
+    /**
+     * Auxiliary builder to select fields relationated for use in views
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeSelectReturnWithRelationFields(Builder $query) {
+        return $query->select(
+            'clients.isActive',
+            'clients.idClients',
+            'clients.clientName',
+            'clients.idSalePoints',
+            'sale_points.salePointName',
+            'clients.idUsersCreation',
+            DB::raw("CONCAT(users_creation.firstName, ' ', users_creation.lastName) AS userCreationName"),
+            'clients.idUsersLastUpdate',
+            DB::raw("CONCAT(users_update.firstName, ' ', users_update.lastName) AS userUpdateName"),
+            'clients.created_at AS createdAt',
+            'clients.updated_at AS updatedAt'
         );
     }
 }

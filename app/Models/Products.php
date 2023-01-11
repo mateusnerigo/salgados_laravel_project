@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory,
     Illuminate\Database\Eloquent\Builder,
-    Illuminate\Database\Eloquent\Model;
+    Illuminate\Database\Eloquent\Model,
+    Illuminate\Support\Facades\DB;
 
 class Products extends Model {
     use HasFactory;
@@ -12,17 +13,14 @@ class Products extends Model {
     protected $primaryKey = 'idProducts';
     public $incrementing  = true;
 
-    protected $hidden = [
-        'created_at',
-        'updated_at'
-    ];
+    protected $hidden = [];
 
     protected $fillable = [
         'productName',
         'standardValue',
-        'isActive',
         'idUsersCreation',
         'idUsersLastUpdate',
+        'isActive',
     ];
 
     /**
@@ -68,6 +66,36 @@ class Products extends Model {
     public function scopeSetActiveStatus(Builder $query, $activeStatus) {
         return $query->update(
             ['isActive' => $activeStatus]
+        );
+    }
+
+    /**
+     * Auxiliary builder to join with relational tables
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeJoinWithRelations(Builder $query) {
+        return $query
+            ->join('users AS users_creation', 'users_creation.idUsers', '=', 'products.idUsersCreation')
+            ->join('users AS users_update', 'users_update.idUsers', '=', 'products.idUsersLastUpdate');
+    }
+
+    /**
+     * Auxiliary builder to select fields relationated for use in views
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeSelectReturnWithRelationFields(Builder $query) {
+        return $query->select(
+            'products.isActive',
+            'products.idProducts',
+            'products.standardValue',
+            'products.idUsersCreation',
+            DB::raw("CONCAT(users_creation.firstName, ' ', users_creation.lastName) AS userCreationName"),
+            'products.idUsersLastUpdate',
+            DB::raw("CONCAT(users_update.firstName, ' ', users_update.lastName) AS userUpdateName"),
+            'products.created_at AS createdAt',
+            'products.updated_at AS updatedAt'
         );
     }
 }

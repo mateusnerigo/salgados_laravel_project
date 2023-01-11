@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory,
     Illuminate\Database\Eloquent\Builder,
-    Illuminate\Database\Eloquent\Model;
+    Illuminate\Database\Eloquent\Model,
+    Illuminate\Support\Facades\DB;
 
 class Sales extends Model {
     use HasFactory;
@@ -38,5 +39,40 @@ class Sales extends Model {
      */
     public function scopeIsActive(Builder $query) {
         return $query->where('status', 'ic');
+    }
+
+    /**
+     * Auxiliary builder to join with relational tables
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeJoinWithRelations(Builder $query) {
+        return $query
+            ->join('clients AS clients', 'clients.idClients', '=', 'sales.idClients')
+            ->join('sale_points AS sale_points', 'sale_points.idSalePoints', '=', 'sales.idSalePoints')
+            ->join('users AS users_creation', 'users_creation.idUsers', '=', 'sales.idUsersCreation')
+            ->join('users AS users_update', 'users_update.idUsers', '=', 'sales.idUsersLastUpdate');
+    }
+
+    /**
+     * Auxiliary builder to select fields relationated for use in views
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeSelectReturnWithRelationFields(Builder $query) {
+        return $query->select(
+            'sales.idSales',
+            'sales.idClients',
+            'clients.clientName',
+            'sales.idSalePoints',
+            'sale_points.salePointName',
+            'sales.status',
+            'sales.idUsersCreation',
+            DB::raw("CONCAT(users_creation.firstName, ' ', users_creation.lastName) AS userCreationName"),
+            'sales.idUsersLastUpdate',
+            DB::raw("CONCAT(users_update.firstName, ' ', users_update.lastName) AS userUpdateName"),
+            'sales.created_at AS createdAt',
+            'sales.updated_at AS updatedAt'
+        );
     }
 }

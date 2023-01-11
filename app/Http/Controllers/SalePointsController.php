@@ -18,7 +18,17 @@ class SalePointsController extends Controller {
             return $this->show($request->idSalePoints);
         }
 
-        return jsonResponse(data: SalePoints::all());
+        return rawJsonResponse(
+            $this->getAllPaginated(
+                new SalePoints,
+                $request,
+                [
+                    'sale_points.idSalePoints',
+                    'sale_points.salePointName',
+                    'sale_points.description'
+                ]
+            )
+        );
     }
 
     /**
@@ -139,14 +149,18 @@ class SalePointsController extends Controller {
         }
 
         try {
+            $userId = auth()->user()->idUsers;
+
             // insertion array for insert or update
             $arrayCreateOrUpdate = [
                 'salePointName' => $requestData['salePointName'],
-                'description'   => $requestData['description']
+                'description'   => $requestData['description'],
+                'idUsersLastUpdate' => $userId
             ];
 
             // creates a new sale point
             if (empty($requestData['idSalePoints'])) {
+                $arrayCreateOrUpdate['idUsersCreation'] = $userId;
                 $endMessagePart = 'cadastrado';
 
                 SalePoints::create($arrayCreateOrUpdate);

@@ -18,7 +18,15 @@ class ProductsController extends Controller {
             return $this->show($request->idProducts);
         }
 
-        return jsonResponse(data: Products::all());
+        return rawJsonResponse($this->getAllPaginated(
+            new Products,
+            $request,
+            [
+                'products.idProducts',
+                'products.productName',
+                'products.standardValue'
+            ]
+        ));
     }
 
     /**
@@ -153,14 +161,18 @@ class ProductsController extends Controller {
         }
 
         try {
+            $userId = auth()->user()->idUsers;
+
             // insertion array for insert or update
             $arrayCreateOrUpdate = [
                 'productName'   => $requestData['productName'],
                 'standardValue' => $requestData['standardValue'],
+                'idUsersLastUpdate' => $userId
             ];
 
             // creates a new product
             if (empty($requestData['idProducts'])) {
+                $arrayCreateOrUpdate['idUsersCreation'] = $userId;
                 $endMessagePart = 'cadastrado';
 
                 Products::create($arrayCreateOrUpdate);

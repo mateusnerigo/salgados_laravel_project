@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests,
     Illuminate\Foundation\Bus\DispatchesJobs,
     Illuminate\Foundation\Validation\ValidatesRequests,
-    Illuminate\Routing\Controller as BaseController,
+    Illuminate\Http\Request,
+    Illuminate\Database\Eloquent\Model,
     App\Models\Products,
     DateTime;
 
-class Controller extends BaseController {
+class Controller extends \Illuminate\Routing\Controller {
     use AuthorizesRequests,
         DispatchesJobs,
         ValidatesRequests;
@@ -29,6 +30,32 @@ class Controller extends BaseController {
      */
     public function hasUserAccess() {
         return !empty(auth()->user());
+    }
+
+    /**
+     * Gets page results with search and paginate applied
+     * @param Model $model
+     * @param  Request $request Request data with filters (GET parameters 'search' and 'perPage')
+     * @param array $columnsToSearch
+     * @return mixed   Returns result with filters
+     */
+    public function getAllPaginated(Model $model, Request $request, array $columnsToSearch = []) {
+        $perPage = 10;
+        if (!empty($request->perPage)) {
+            $perPage = (int) $request->perPage;
+        }
+
+        $query = $model::joinWithRelations();
+
+        if (!empty($request->search)) {
+            foreach ($columnsToSearch as $column) {
+                $query->orWhere($column, 'LIKE', "%{$request->search}%");
+            }
+        }
+
+        return $query
+            ->selectReturnWithRelationFields()
+            ->paginate($perPage);
     }
 
     /**

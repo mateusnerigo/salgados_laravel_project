@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory,
     Illuminate\Database\Eloquent\Builder,
-    Illuminate\Database\Eloquent\Model;
+    Illuminate\Database\Eloquent\Model,
+    Illuminate\Support\Facades\DB;
 
 class SalePoints extends Model {
     use HasFactory;
@@ -12,17 +13,14 @@ class SalePoints extends Model {
     protected $primaryKey = 'idSalePoints';
     public $incrementing  = true;
 
-    protected $hidden = [
-        'created_at',
-        'updated_at',
-        'idUsersCreation',
-        'idUsersLastUpdate',
-    ];
+    protected $hidden = [];
 
     protected $fillable = [
         'salePointName',
         'description',
-        'isActive'
+        'isActive',
+        'idUsersCreation',
+        'idUsersLastUpdate',
     ];
 
     /**
@@ -68,6 +66,37 @@ class SalePoints extends Model {
     public function scopeSetActiveStatus(Builder $query, $activeStatus) {
         return $query->update(
             ['isActive' => $activeStatus]
+        );
+    }
+
+    /**
+     * Auxiliary builder to join with relational tables
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeJoinWithRelations(Builder $query) {
+        return $query
+            ->join('users AS users_creation', 'users_creation.idUsers', '=', 'sale_points.idUsersCreation')
+            ->join('users AS users_update', 'users_update.idUsers', '=', 'sale_points.idUsersLastUpdate');
+    }
+
+    /**
+     * Auxiliary builder to select fields relationated for use in views
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeSelectReturnWithRelationFields(Builder $query) {
+        return $query->select(
+            'sale_points.isActive',
+            'sale_points.idSalePoints',
+            'sale_points.salePointName',
+            'sale_points.description',
+            'sale_points.idUsersCreation',
+            DB::raw("CONCAT(users_creation.firstName, ' ', users_creation.lastName) AS userCreationName"),
+            'sale_points.idUsersLastUpdate',
+            DB::raw("CONCAT(users_update.firstName, ' ', users_update.lastName) AS userUpdateName"),
+            'sale_points.created_at AS createdAt',
+            'sale_points.updated_at AS updatedAt'
         );
     }
 }

@@ -9,6 +9,7 @@ Use Illuminate\Http\JsonResponse;
  * @param string $dev  Dev message text
  * @param string $type Message type
  * @param mixed  $data Data to send
+ * @return JsonResponse
  */
 function jsonResponse(string $msg = '', string $type = '', string $dev = '', $data = ''): JsonResponse {
     return response()
@@ -18,6 +19,14 @@ function jsonResponse(string $msg = '', string $type = '', string $dev = '', $da
             'type' => $type,
             'data' => $data
         ])
+        ->withHeaders([
+            'Content-Type' => 'application/json'
+        ]);
+}
+
+function rawJsonResponse($data = ''): JsonResponse {
+    return response()
+        ->json($data)
         ->withHeaders([
             'Content-Type' => 'application/json'
         ]);

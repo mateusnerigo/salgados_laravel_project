@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse,
     Illuminate\Http\Request,
+    Illuminate\Support\Facades\DB,
     App\Models\Clients,
     App\Models\SalePoints,
     Throwable;
@@ -19,7 +20,15 @@ class ClientsController extends Controller {
             return $this->show($request->idClients);
         }
 
-        return jsonResponse(data: Clients::all());
+        return rawJsonResponse($this->getAllPaginated(
+            new Clients,
+            $request,
+            [
+                'clients.idClients',
+                'clients.clientName',
+                'sale_points.salePointName'
+            ]
+        ));
     }
 
     /**
@@ -41,7 +50,11 @@ class ClientsController extends Controller {
             return $idClientsValidationError;
         }
 
-        return jsonResponse(data: Clients::getById($idClients)->first());
+        return jsonResponse(data: Clients::joinWithRelations()
+            ->selectReturnWithRelationFields()
+            ->getById($idClients)
+            ->first()
+        );
     }
 
     /**
@@ -154,9 +167,12 @@ class ClientsController extends Controller {
         }
 
         try {
+            $userId = auth()->user()->idUsers;
+
             // insertion array for insert or update
             $arrayCreateOrUpdate = [
-                'clientName' => $requestData['clientName']
+                'clientName' => $requestData['clientName'],
+                'idUsersLastUpdate' => $userId
             ];
 
             if (!empty($requestData['idSalePoints'])) {
@@ -165,6 +181,7 @@ class ClientsController extends Controller {
 
             // creates a new client
             if (empty($requestData['idClients'])) {
+                $arrayCreateOrUpdate['idUsersCreation'] = $userId;
                 $endMessagePart = 'cadastrado';
 
                 Clients::create($arrayCreateOrUpdate);

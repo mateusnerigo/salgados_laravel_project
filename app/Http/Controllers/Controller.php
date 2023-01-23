@@ -85,7 +85,7 @@ class Controller extends \Illuminate\Routing\Controller {
 
         // if it is not set
         if (!isset($value)) {
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 "{$msgTemplate} não foi enviado corretamente.",
                 "Empty variable: {$variableName}."
             );
@@ -94,35 +94,35 @@ class Controller extends \Illuminate\Routing\Controller {
         // if it is empty
         if ($obrigatory) {
             if (empty($value) && ($value != 0)) {
-                return jsonWarningResponse("{$msgTemplate} deve ser preenchido.");
+                return jsonErrorResponse("{$msgTemplate} deve ser preenchido.");
             }
         }
 
         // if it is shorter than 3 characters
         if ($validateLength && !$validateNumeric && !$validateInteger) {
             if (strlen($value) < $lengthToValidate) {
-                return jsonWarningResponse("{$msgTemplate} deve ter pelo menos 3 letras.");
+                return jsonErrorResponse("{$msgTemplate} deve ter pelo menos 3 letras.");
             }
         }
 
         // if it is not numeric
         if ($validateNumeric && !$validateInteger) {
             if (!is_numeric($value)) {
-                return jsonWarningResponse("{$msgTemplate} deve ser um número decimal. (Exemplo: 19.60)");
+                return jsonErrorResponse("{$msgTemplate} deve ser um número decimal. (Exemplo: 19.60)");
             }
         }
 
         // if it is not integer
         if ($validateInteger) {
             if (!is_int($value)) {
-                return jsonWarningResponse("{$msgTemplate} deve ser um número inteiro.");
+                return jsonErrorResponse("{$msgTemplate} deve ser um número inteiro.");
             }
         }
 
         // if is email validation active, verifies if it is a valid email
         if ($validateEmail) {
             if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                return jsonWarningResponse("{$msgTemplate} deve ser um email válido.");
+                return jsonErrorResponse("{$msgTemplate} deve ser um email válido.");
             }
         }
 
@@ -146,7 +146,7 @@ class Controller extends \Illuminate\Routing\Controller {
     ) {
         // if it is not set
         if (!isset($idToValidate)) {
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 "A identificação do {$idFrom} não foi enviada corretamente.",
                 "Empty variable: {$variableName}."
             );
@@ -159,7 +159,7 @@ class Controller extends \Illuminate\Routing\Controller {
 
         // if it is not numeric
         if (!is_numeric($idToValidate)) {
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 "A identificação do {$idFrom} foi enviada de forma equívoca.",
                 "Sended variable value: {$idToValidate}"
             );
@@ -169,7 +169,7 @@ class Controller extends \Illuminate\Routing\Controller {
         if ($idToValidate > 0) {
             // if the client isn't registered
             if (empty($model::getById($idToValidate)->first())) {
-                return jsonWarningResponse(
+                return jsonErrorResponse(
                     "O código do {$idFrom} enviado não pertence a nenhum registro cadastrado.",
                     "Sended variable value: {$idToValidate}"
                 );
@@ -179,7 +179,7 @@ class Controller extends \Illuminate\Routing\Controller {
             if ($validateIsActive) {
                 // if the client isn't active
                 if (empty($model::getById($idToValidate)->isActive()->first())) {
-                    return jsonWarningResponse(
+                    return jsonErrorResponse(
                         "O {$idFrom} escolhido não está ativo.",
                         "Sended variable value: {$idToValidate}"
                     );
@@ -198,7 +198,7 @@ class Controller extends \Illuminate\Routing\Controller {
     public static function validateSaleStatus($actualStatus, $newStatus) {
         // if it is not set
         if (!isset($newStatus)) {
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 "A situação da venda não foi enviada corretamente",
                 "Empty variable: \$requestData['status']."
             );
@@ -206,7 +206,7 @@ class Controller extends \Illuminate\Routing\Controller {
 
         // if it is not in the array of possible status
         if (!in_array($newStatus, SALES_STATUS)) {
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 "A situação enviada para que a venda seja atualizada não é uma situação possível.",
                 "Sended variable value: {$newStatus}"
             );
@@ -214,7 +214,7 @@ class Controller extends \Illuminate\Routing\Controller {
 
         // if it is a canceled or finished sale
         if ($actualStatus == 'cl' || $actualStatus == 'fs') {
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 "A venda não pode ser atualizada.",
                 "Sale already finished or canceled."
             );
@@ -230,7 +230,7 @@ class Controller extends \Illuminate\Routing\Controller {
     public static function validateDeliverDatetime($deliverDateTime) {
         // if it is not set
         if (!isset($deliverDateTime)) {
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 "A data e hora de entrega não foram enviadas corretamente.",
                 "Empty variable: \$requestData['deliverDatetime']."
             );
@@ -241,7 +241,7 @@ class Controller extends \Illuminate\Routing\Controller {
 
         // if we find any errors during the creation, returns with a proper message
         if (!empty(DateTime::getLastErrors()['warning_count'])) {
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 "A data e a hora de entrega foram enviadas de forma equívoca.",
                 "Sended variable value: {$deliverDateTime}."
             );
@@ -258,7 +258,7 @@ class Controller extends \Illuminate\Routing\Controller {
     public function validateSaleItems($itemsToValidate) {
         // if it is not set
         if (!isset($itemsToValidate) || empty($itemsToValidate)) {
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 "Os itens da venda não foram enviados.",
                 "Empty variable: \$requestData['items']."
             );

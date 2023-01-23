@@ -97,7 +97,7 @@ class ClientsController extends Controller {
             $clientToToggle->setActiveStatus($statusToChange);
         } catch (Throwable $e) {
             // returns it if an error occurs
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 "Há algo errado com os dados enviados.",
                 $e->getMessage()
             );
@@ -163,7 +163,7 @@ class ClientsController extends Controller {
             ->first();
 
         if (!empty($clientAlreadyCreated)) {
-            return jsonWarningResponse('Já existe um cliente cadastrado com esse nome para esse ponto de venda.');
+            return jsonErrorResponse('Já existe um cliente cadastrado com esse nome para esse ponto de venda.');
         }
 
         try {
@@ -195,7 +195,7 @@ class ClientsController extends Controller {
             }
         } catch (Throwable $e) {
             // returns a message if an error occurs
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 "Há algo errado com os dados enviados.",
                 $e->getMessage()
             );

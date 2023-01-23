@@ -91,7 +91,7 @@ class ProductsController extends Controller {
             $productToToggle->setActiveStatus($statusToChange);
         } catch (Throwable $e) {
             // returns it if an error occurs
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 "Há algo errado com os dados enviados.",
                 $e->getMessage()
             );
@@ -157,7 +157,7 @@ class ProductsController extends Controller {
             ->first();
 
         if (!empty($productAlreadyCreated)) {
-            return jsonWarningResponse('Já existe um produto cadastrado com esse nome.');
+            return jsonErrorResponse('Já existe um produto cadastrado com esse nome.');
         }
 
         try {
@@ -186,7 +186,7 @@ class ProductsController extends Controller {
             }
         } catch (Throwable $e) {
             // returns a message if an error occurs
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 "Há algo errado com os dados enviados.",
                 $e->getMessage()
             );

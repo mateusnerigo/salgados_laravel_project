@@ -32,7 +32,7 @@ class AuthController extends Controller {
             ]);
         } catch (Throwable $e) {
             // returns a message if an error occurs
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 "Há algo errado com os dados enviados.",
                 $e->getMessage()
             );
@@ -77,7 +77,7 @@ class AuthController extends Controller {
             (isset($requestData['userName']) && empty($requestData['userName'])) ||
             empty($requestData['password'])
         ) {
-            return jsonWarningResponse(
+            return jsonErrorResponse(
                 'Preencha todos os campos para continuar.',
                 'Data sended: ' . json_encode($requestData)
             );
@@ -102,7 +102,7 @@ class AuthController extends Controller {
             );
         }
 
-        return jsonWarningResponse('Dados de acesso inválidos.');
+        return jsonErrorResponse('Dados de acesso inválidos.');
     }
 
     public function verifyUserAccess() {
@@ -153,7 +153,7 @@ class AuthController extends Controller {
         }
 
         if (!empty(User::whereUserName($requestData['userName'])->first())) {
-            return jsonWarningResponse('Este nome de usuário já está sendo usado.');
+            return jsonErrorResponse('Este nome de usuário já está sendo usado.');
         }
 
         // verifies email
@@ -169,7 +169,7 @@ class AuthController extends Controller {
         }
 
         if (!empty(User::whereEmail($requestData['email'])->first())) {
-            return jsonWarningResponse('Este email já está sendo usado.');
+            return jsonErrorResponse('Este email já está sendo usado.');
         }
 
         // verifies password

@@ -33,11 +33,11 @@ function rawJsonResponse($data = ''): JsonResponse {
 }
 
 /**
- * Prepares a json response with the given message for use in fron, a message to be used by dev and 'alert' type
+ * Prepares a json response with the given message for use in fron, a message to be used by dev and 'warning' type
  * @return JsonResponse
  */
-function jsonAlertResponse(string $msg, string $devMsg = ''): JsonResponse {
-    return jsonResponse($msg, 'alert', $devMsg);
+function jsonWarningResponse(string $msg, string $devMsg = ''): JsonResponse {
+    return jsonResponse($msg, 'warning', $devMsg);
 }
 
 /**
@@ -58,9 +58,9 @@ function isAnEmptyRequest(Request $request): bool {
 }
 
 /**
- * Prepares a default json alert response
+ * Prepares a default json warning response
  * @return JsonResponse
  */
 function dataSendedErrorResponse(): JsonResponse {
-    return jsonAlertResponse('Os dados não foram enviados corretamente.');
+    return jsonWarningResponse('Os dados não foram enviados corretamente.');
 }

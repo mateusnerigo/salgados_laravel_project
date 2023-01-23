@@ -93,7 +93,7 @@ class SalePointsController extends Controller {
             $salePointToToggle->setActiveStatus($statusToChange);
         } catch (Throwable $e) {
             // returns it if an error occurs
-            return jsonAlertResponse(
+            return jsonWarningResponse(
                 "Há algo errado com os dados enviados.",
                 $e->getMessage()
             );
@@ -145,7 +145,7 @@ class SalePointsController extends Controller {
 
         // verifies if the data given matches with a sale point already created
         if (!empty($salePointAlreadyCreated)) {
-            return jsonAlertResponse('Já existe um ponto de venda cadastrado com esse nome.');
+            return jsonWarningResponse('Já existe um ponto de venda cadastrado com esse nome.');
         }
 
         try {
@@ -174,7 +174,7 @@ class SalePointsController extends Controller {
             }
         } catch (Throwable $e) {
             // returns a message if an error occurs
-            return jsonAlertResponse(
+            return jsonWarningResponse(
                 "Há algo errado com os dados enviados.",
                 $e->getMessage()
             );

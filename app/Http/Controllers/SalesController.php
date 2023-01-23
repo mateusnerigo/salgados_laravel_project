@@ -91,7 +91,7 @@ class SalesController extends Controller {
                 ]);
         } catch (Throwable $e) {
             // returns it if an error occurs
-            return jsonAlertResponse(
+            return jsonWarningResponse(
                 "Há algo errado com os dados enviados.",
                 $e->getMessage()
             );
@@ -212,7 +212,7 @@ class SalesController extends Controller {
             DB::rollBack();
 
             // returns a message if an error occurs
-            return jsonAlertResponse(
+            return jsonWarningResponse(
                 "Há algo errado com os dados enviados.",
                 $e->getMessage()
             );

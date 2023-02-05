@@ -89,6 +89,7 @@ class Products extends Model {
         return $query->select(
             'products.isActive',
             'products.idProducts',
+            'products.productName',
             'products.standardValue',
             'products.idUsersCreation',
             DB::raw("CONCAT(users_creation.firstName, ' ', users_creation.lastName) AS userCreationName"),

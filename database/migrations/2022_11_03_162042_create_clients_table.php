@@ -37,7 +37,6 @@ return new class extends Migration {
                 ->on('users')
                 ->nullOnDelete()
                 ->cascadeOnUpdate();
-
         });
     }
 

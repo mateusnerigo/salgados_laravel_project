@@ -23,44 +23,47 @@ use App\Http\Controllers\AuthController,
 Route::group([
     'middleware' => 'api'
 ], function ($router) {
-    Route::get('verifyAccess', [AuthController::class, 'verifyUserAccess']);
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login', [AuthController::class, 'login']);
-    Route::get('logout', [AuthController::class, 'logout']);
+    Route::controller(AuthController::class)
+        ->group(function () {
+            Route::get('verifyAccess', 'verifyUserAccess');
+            Route::post('register', 'register');
+            Route::post('login', 'login');
+            Route::get('logout', 'logout');
+        });
 
     // Sale Points
     Route::controller(SalePointsController::class)
-    ->prefix('salePoints')
-    ->group(function () {
-        Route::get('/{idSalePoints?}', 'index');
-        Route::get('toggle/{idSalePoints}', 'toggleActive');
-        Route::post('', 'save');
-    });
+        ->prefix('salePoints')
+        ->group(function () {
+            Route::get('/{idSalePoints?}', 'index');
+            Route::get('toggle/{idSalePoints}', 'toggleActive');
+            Route::post('', 'save');
+        });
 
     // Clients
     Route::controller(ClientsController::class)
-    ->prefix('clients')
-    ->group(function () {
-        Route::get('/{idClients?}', 'index');
-        Route::get('toggle/{idClients}', 'toggleActive');
-        Route::post('', 'save');
-    });
+        ->prefix('clients')
+        ->group(function () {
+            Route::get('/{idClients?}', 'index');
+            Route::get('toggle/{idClients}', 'toggleActive');
+            Route::post('', 'save');
+        });
 
     // Products
     Route::controller(ProductsController::class)
-    ->prefix('products')
-    ->group(function () {
-        Route::get('/{idProducts?}', 'index');
-        Route::get('toggle/{idProducts}', 'toggleActive');
-        Route::post('', 'save');
-    });
+        ->prefix('products')
+        ->group(function () {
+            Route::get('/{idProducts?}', 'index');
+            Route::get('toggle/{idProducts}', 'toggleActive');
+            Route::post('', 'save');
+        });
 
     // Sales
     Route::controller(SalesController::class)
-    ->prefix('sales')
-    ->group(function () {
-        Route::get('/{isSales?}', 'index');
-        Route::get('updateStatus/{idSales}/{status}', 'updateStatus');
-        Route::post('', 'save');
-    });
+        ->prefix('sales')
+        ->group(function () {
+            Route::get('/{isSales?}', 'index');
+            Route::get('updateStatus/{idSales}/{status}', 'updateStatus');
+            Route::post('', 'save');
+        });
 });

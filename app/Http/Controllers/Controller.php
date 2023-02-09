@@ -17,7 +17,7 @@ class Controller extends \Illuminate\Routing\Controller {
 
     function __construct() {
         // only AuthController should accept unauthorized access
-        if (get_called_class() != AUTH_CONTROLLER) {
+        if (get_called_class() != 'App\Http\Controllers\AuthController') {
             if (!$this->hasUserAccess()) {
                 abort(401);
             }

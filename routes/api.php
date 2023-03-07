@@ -21,7 +21,7 @@ use App\Http\Controllers\AuthController,
 */
 
 Route::group([
-    'middleware' => 'api'
+    'middleware' => ['api', 'cors']
 ], function ($router) {
     Route::controller(AuthController::class)
         ->group(function () {

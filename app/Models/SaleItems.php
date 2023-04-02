@@ -42,7 +42,6 @@ class SaleItems extends Model {
     /**
      * Auxiliary builder to join with relational tables
      * @param Builder $query
-     * @return Builder
      */
     public function scopeJoinWithRelations(Builder $query) {
         return $query
@@ -52,7 +51,6 @@ class SaleItems extends Model {
     /**
      * Auxiliary builder to select fields relationated for use in views
      * @param Builder $query
-     * @return Builder
      */
     public function scopeSelectReturnWithRelationFields(Builder $query) {
         return $query->select(

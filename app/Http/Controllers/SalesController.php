@@ -86,7 +86,7 @@ class SalesController extends Controller {
             // updates the sle founded
             Sales::where('idSales', $idSales)
                 ->update([
-                    'status' => $targetStatus,
+                    'status'            => $targetStatus,
                     'idUsersLastUpdate' => auth()->user()->idUsers
                 ]);
         } catch (Throwable $e) {
@@ -167,15 +167,24 @@ class SalesController extends Controller {
             // transaction for sale integrity
             DB::beginTransaction();
 
+            $userId = auth()->user()->idUsers;
+            $timestampNow = now();
+
             // array for insert or update
             $arrayCreateOrUpdate = [
-                'idSalePoints' => $requestData['idSalePoints'],
-                'idClients' => $requestData['idClients'],
-                'deliverDatetime' => $requestData['deliverDatetime'],
+                'idSalePoints'      => $requestData['idSalePoints'],
+                'idClients'         => $requestData['idClients'],
+                'deliverDatetime'   => $requestData['deliverDatetime'],
+                'idUsersLastUpdate' => $userId,
+                'created_at'        => $timestampNow,
+                'updated_at'        => $timestampNow
             ];
+            unset($timestampNow);
 
             // creates a new sale
             if (empty($requestData['idSales'])) {
+                $arrayCreateOrUpdate['idUsersCreation'] = $userId;
+
                 $endMessagePart = 'cadastrada';
 
                 $idSales = Sales::insertGetId($arrayCreateOrUpdate);

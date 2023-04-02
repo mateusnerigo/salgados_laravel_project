@@ -1,0 +1,679 @@
+{
+	"info": {
+		"_postman_id": "1d4beb8b-23bb-4207-bf33-fb0a7cdef95a",
+		"name": "Salgados Project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12794471"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "data",
+									"value": "{\"firstName\":\"Mateus\",\"lastName\":\"Neri\",\"userName\":\"nerigo\",\"email\":\"mateauas@mail.com\",\"password\":\"mateus123\"}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{h_api}}/register",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"    \r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Usuário logado com sucesso\", function () {\r",
+									"    pm.expect(jsonData.type).to.be.eq(\"success\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Campos necessários retornados\", function () {    \r",
+									"    // campos necessários\r",
+									"    pm.expect(jsonData.data.access_token).to.be.not.empty;\r",
+									"    pm.expect(jsonData.data.token_type).to.be.not.empty;\r",
+									"});\r",
+									"\r",
+									"pm.collectionVariables.set(\"access_token\", jsonData.data.access_token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "data",
+									"value": "{\"userName\":\"nerigo\",\"password\":\"mateus123\"}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{h_api}}/login",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify access",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{h_api}}/verifyAccess",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"verifyAccess"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"access_token\", null);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{h_api}}/logout",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "sale points",
+			"item": [
+				{
+					"name": "get sale points",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{h_api}}/salePoints/",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"salePoints",
+								""
+							],
+							"query": [
+								{
+									"key": "perPage",
+									"value": "10",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "toggle sale point active",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{h_api}}/salePoints/toggle/8",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"salePoints",
+								"toggle",
+								"8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "save/update a sale point",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "data",
+									"value": "{\"idSalePoints\":\"\",\"salePointName\":\"NeriGoDev\", \"description\":\"\"}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{h_api}}/salePoints",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"salePoints"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "clients",
+			"item": [
+				{
+					"name": "get clients",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{h_api}}/clients/",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"clients",
+								""
+							],
+							"query": [
+								{
+									"key": "perPage",
+									"value": "10",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "toggle client active",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{h_api}}/clients/toggle/8",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"clients",
+								"toggle",
+								"8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "save/update a client",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "data",
+									"value": "{\"idClients\":\"\",\"clientName\":\"Sheila Love\",\"idSalePoints\":\"1\"}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{h_api}}/clients",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"clients"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "products",
+			"item": [
+				{
+					"name": "get products",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{h_api}}/products/",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"products",
+								""
+							],
+							"query": [
+								{
+									"key": "perPage",
+									"value": "10",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "toggle product active",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{h_api}}/products/toggle/8",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"products",
+								"toggle",
+								"8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "save/update a product",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "data",
+									"value": "{\"idProducts\":\"\",\"productName\":\"Chocotone FODA\",\"standardValue\":\"22.5\"}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{h_api}}/products",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "sales",
+			"item": [
+				{
+					"name": "get sales",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{h_api}}/sales/",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"sales",
+								""
+							],
+							"query": [
+								{
+									"key": "perPage",
+									"value": "10",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "save a sale",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "data",
+									"value": "{\"idSales\":22,\"idSalePoints\":2, \"idClients\":2,\"deliverDatetime\":\"2022-10-04 13:15:00\",\"items\":[{\"idProducts\":3,\"quantity\":1.2,\"soldPrice\":13.5,\"discountAppied\":2}]}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{h_api}}/sales",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"sales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update sale status",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "data",
+									"value": "{\"idSales\":2,\"status\":\"cl\"}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{h_api}}/sales/updateStatus",
+							"host": [
+								"{{h_api}}"
+							],
+							"path": [
+								"sales",
+								"updateStatus"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "h_api",
+			"value": "http://10.0.0.194:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTAuMC4wLjE5NDo4MDAwL2FwaS9sb2dpbiIsImlhdCI6MTY3OTk1Njk4NSwiZXhwIjoxNjc5OTYwNTg1LCJuYmYiOjE2Nzk5NTY5ODUsImp0aSI6Ikc3S3F2SkhYUTdpQ0lDRnkiLCJzdWIiOiIyIiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.ovoUnSl0DpxKEdkPa87ZKWa-QNbmnE0rgQifMZkr2Xg",
+			"type": "string"
+		}
+	]
+}

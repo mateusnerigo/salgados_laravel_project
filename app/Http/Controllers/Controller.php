@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests,
     Illuminate\Database\Eloquent\Model,
     App\Models\Products,
     DateTime;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class Controller extends \Illuminate\Routing\Controller {
     use AuthorizesRequests,
@@ -19,7 +20,7 @@ class Controller extends \Illuminate\Routing\Controller {
         // only AuthController should accept unauthorized access
         if (get_called_class() != 'App\Http\Controllers\AuthController') {
             if (!$this->hasUserAccess()) {
-                abort(401);
+                throw new UnauthorizedHttpException('teste');
             }
         }
     }

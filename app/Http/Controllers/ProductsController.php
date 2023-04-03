@@ -22,9 +22,9 @@ class ProductsController extends Controller {
             new Products,
             $request,
             [
-                'products.idProducts',
-                'products.productName',
-                'products.standardValue'
+                'idProducts',
+                'productName',
+                'standardValue'
             ]
         ));
     }

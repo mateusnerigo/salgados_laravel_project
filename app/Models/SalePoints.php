@@ -85,13 +85,13 @@ class SalePoints extends Model {
      */
     public function scopeSelectReturnWithRelationFields(Builder $query) {
         return $query->select(
-            'sale_points.isActive',
-            'sale_points.idSalePoints',
-            'sale_points.salePointName',
-            'sale_points.description',
-            'sale_points.idUsersCreation',
+            'sale_points.isActive AS isActive',
+            'sale_points.idSalePoints AS idSalePoints',
+            'sale_points.salePointName AS salePointName',
+            'sale_points.description AS description',
+            'sale_points.idUsersCreation AS idUsersCreation',
             DB::raw("CONCAT(users_creation.firstName, ' ', users_creation.lastName) AS userCreationName"),
-            'sale_points.idUsersLastUpdate',
+            'sale_points.idUsersLastUpdate AS idUsersLastUpdate',
             DB::raw("CONCAT(users_update.firstName, ' ', users_update.lastName) AS userUpdateName"),
             'sale_points.created_at AS createdAt',
             'sale_points.updated_at AS updatedAt'

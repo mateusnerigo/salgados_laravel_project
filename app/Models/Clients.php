@@ -95,14 +95,14 @@ class Clients extends Model {
      */
     public function scopeSelectReturnWithRelationFields(Builder $query) {
         return $query->select(
-            'clients.isActive',
-            'clients.idClients',
-            'clients.clientName',
-            'clients.idSalePoints',
-            'sale_points.salePointName',
-            'clients.idUsersCreation',
+            'clients.isActive AS isActive',
+            'clients.idClients AS idClients',
+            'clients.clientName AS clientName',
+            'clients.idSalePoints AS idSalePoints',
+            'sale_points.salePointName AS salePointName',
+            'clients.idUsersCreation AS idUsersCreation',
             DB::raw("CONCAT(users_creation.firstName, ' ', users_creation.lastName) AS userCreationName"),
-            'clients.idUsersLastUpdate',
+            'clients.idUsersLastUpdate AS idUsersLastUpdate',
             DB::raw("CONCAT(users_update.firstName, ' ', users_update.lastName) AS userUpdateName"),
             'clients.created_at AS createdAt',
             'clients.updated_at AS updatedAt'

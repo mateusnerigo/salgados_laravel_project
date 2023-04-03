@@ -85,13 +85,13 @@ class Products extends Model {
      */
     public function scopeSelectReturnWithRelationFields(Builder $query) {
         return $query->select(
-            'products.isActive',
-            'products.idProducts',
-            'products.productName',
-            'products.standardValue',
-            'products.idUsersCreation',
+            'products.isActive AS isActive',
+            'products.idProducts AS idProducts',
+            'products.productName AS productName',
+            'products.standardValue AS standardValue',
+            'products.idUsersCreation AS idUsersCreation',
             DB::raw("CONCAT(users_creation.firstName, ' ', users_creation.lastName) AS userCreationName"),
-            'products.idUsersLastUpdate',
+            'products.idUsersLastUpdate AS idUsersLastUpdate',
             DB::raw("CONCAT(users_update.firstName, ' ', users_update.lastName) AS userUpdateName"),
             'products.created_at AS createdAt',
             'products.updated_at AS updatedAt'

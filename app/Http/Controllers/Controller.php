@@ -54,6 +54,12 @@ class Controller extends \Illuminate\Routing\Controller {
             }
         }
 
+        if (!empty($request->orderBy) && in_array($request->orderBy, $columnsToSearch)) {
+            $orderByType = $request->orderByType ?? 'asc';
+
+            $query->orderBy($request->orderBy, $orderByType);
+        }
+
         return $query
             ->selectReturnWithRelationFields()
             ->paginate($perPage);

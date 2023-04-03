@@ -62,7 +62,7 @@ Route::group([
     Route::controller(SalesController::class)
         ->prefix('sales')
         ->group(function () {
-            Route::get('/{isSales?}', 'index');
+            Route::get('/{idSales?}', 'index');
             Route::get('updateStatus/{idSales}/{status}', 'updateStatus');
             Route::post('', 'save');
         });

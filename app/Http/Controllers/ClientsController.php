@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse,
     Illuminate\Http\Request,
-    Illuminate\Support\Facades\DB,
     App\Models\Clients,
     App\Models\SalePoints,
     Throwable;
@@ -24,9 +23,9 @@ class ClientsController extends Controller {
             new Clients,
             $request,
             [
-                'clients.idClients',
-                'clients.clientName',
-                'sale_points.salePointName'
+                'idClients',
+                'clientName',
+                'salePointName'
             ]
         ));
     }

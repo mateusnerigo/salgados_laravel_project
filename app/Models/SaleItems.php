@@ -54,14 +54,14 @@ class SaleItems extends Model {
      */
     public function scopeSelectReturnWithRelationFields(Builder $query) {
         return $query->select(
-            'sale_items.idSaleItems',
-            'sale_items.idProducts',
-            'products.productName',
-            'sale_items.quantity',
-            'sale_items.soldPrice',
-            'sale_items.discountApplied',
-            'sale_items.created_at',
-            'sale_items.updated_at'
+            'sale_items.idSaleItems AS idSaleItems',
+            'sale_items.idProducts AS idProducts',
+            'products.productName AS productName',
+            'sale_items.quantity AS quantity',
+            'sale_items.soldPrice AS soldPrice',
+            'sale_items.discountApplied AS discountApplied',
+            'sale_items.created_at AS created_at',
+            'sale_items.updated_at AS updated_at'
         );
     }
 }

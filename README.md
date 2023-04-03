@@ -1,19 +1,19 @@
 # **Salgados Manager**
-API project using Laravel 9 and JWT authenticaton (jwt-auth). 
-- [How to configure it](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#how-to-configure-it)
-- [How to use it](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#how-to-use-it)
-    - [Default return](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#default-return)
-    - [Registration, Login, Login validation and Logout](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#registration-login-logout-and-access-verification)
-        - [Registration](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#registration)
-        - [Login](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#login)
-        - [Logout](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#registration)
-        - [Access verification](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#access-verification)
-    - [GET default routes](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#get-default-routes)
-    - [Retrieving by ID](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#retrieving-by-id)
-    - [Deactivate/Activate registers](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#deactivateactivate-registers)
-    - [Creating/Updating data](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#creatingupdating-data)
-    - [Updating sales status](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#updating-sales-status)
-- [Thank you!](https://github.com/mateusnerigo/salgados_laravel_project/edit/main/README.md#thank-you-im-really-glad-that-youre-here)
+API project using Laravel 9 and JWT authenticaton (jwt-auth).
+- [How to configure it](https://github.com/mateusnerigo/salgados_laravel_project#how-to-configure-it)
+- [How to use it](https://github.com/mateusnerigo/salgados_laravel_project#how-to-use-it)
+    - [Default return](https://github.com/mateusnerigo/salgados_laravel_project#default-return)
+    - [Registration, Login, Login validation and Logout](https://github.com/mateusnerigo/salgados_laravel_project#registration-login-logout-and-access-verification)
+        - [Registration](https://github.com/mateusnerigo/salgados_laravel_project#registration)
+        - [Login](https://github.com/mateusnerigo/salgados_laravel_project#login)
+        - [Logout](https://github.com/mateusnerigo/salgados_laravel_project#registration)
+        - [Access verification](https://github.com/mateusnerigo/salgados_laravel_project#access-verification)
+    - [GET default routes](https://github.com/mateusnerigo/salgados_laravel_project#get-default-routes)
+    - [Retrieving by ID](https://github.com/mateusnerigo/salgados_laravel_project#retrieving-by-id)
+    - [Deactivate/Activate registers](https://github.com/mateusnerigo/salgados_laravel_project#deactivateactivate-registers)
+    - [Creating/Updating data](https://github.com/mateusnerigo/salgados_laravel_project#creatingupdating-data)
+    - [Updating sales status](https://github.com/mateusnerigo/salgados_laravel_project#updating-sales-status)
+- [Thank you!](https://github.com/mateusnerigo/salgados_laravel_project#thank-you-im-really-glad-that-youre-here)
 
 
 
@@ -43,7 +43,7 @@ The default return is JSON formated, so all requisitions returns in the followin
 ```
 
 ## Registration, Login, Logout and Access verification
-In order to access all API resources, it is obrigatory to have an Authorization option in all requisitions headers. To achive it you will need to, first of all, register an user on it.  
+In order to access all API resources, it is obrigatory to have an Authorization option in all requisitions headers. To achive it you will need to, first of all, register an user on it.
 
 ### Registration
 To register a new user on API it is needed to send a POST requisition containing a **multipart/form-data** body with a JSON named **data** to the route **/api/register** with the following:
@@ -56,7 +56,7 @@ To register a new user on API it is needed to send a POST requisition containing
 {
     "firstName": "Mateus",
     "lastName": "Neri",
-    "userName": "nerigo", 
+    "userName": "nerigo",
     "email":"mateus@mail.com",
     "password":"mateus123"
 }
@@ -69,7 +69,7 @@ To login a user on API, it is needed to send a POST requisition containing a **m
 - `password` (string)
 ```json
 {
-    "userName": "nerigo", 
+    "userName": "nerigo",
     "password":"mateus123"
 }
 ```
@@ -87,9 +87,9 @@ This requisition returns in default way and the `msg` field in it will show you 
 }
 ```
 
-**IMPORTANT**: In order to access API resources, it is needed to send an Authorization header option with `data.token_type` and `data.access_token` like 
+**IMPORTANT**: In order to access API resources, it is needed to send an Authorization header option with `data.token_type` and `data.access_token` like
 
-``` 
+```
 bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNjcyOTA4MzM4LCJleHAiOjE2NzI5MTE5MzgsIm5iZiI6MTY3MjkwODMzOCwianRpIjoieWhMSEUxa0RuNjdOcjVKSCIsInN1YiI6IjIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.ojbcdjzWTI_F5NXdjcDPFQCY0G0nmUfw7ny4riZoC-Y
 ```
 
@@ -110,122 +110,198 @@ An utility route to verifing access, by validate if the given authorization is s
 ```
 
 ## GET default routes
-There are 4 main routes used to retrieve data (`GET`) as a JSON:
+There are 4 main routes used to retrieve data (`GET`) as a JSON. They are paginated with Laravel standards and the params to navigate the result pages and filter data are at the next topic.
 
-- `/api/salePoints`: Returns in `data` the sale points created. The returned fields are `idSalePoints` (integer), `salePointName` (string), `description` (string), `isActive`(integer [0 | 1]).
+By default, the return for this routes contains the following data (products route ie.):
 ```json
 {
-    "msg": "",
-    "dev": "",
-    "type": "",
+    "current_page": 1,
+    "data": [...],
+    "first_page_url": "http://10.0.0.194:8000/api/products?page=1",
+    "from": 1,
+    "last_page": 1,
+    "last_page_url": "http://10.0.0.194:8000/api/products?page=1",
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "http://10.0.0.194:8000/api/products?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": null,
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "next_page_url": null,
+    "path": "http://10.0.0.194:8000/api/products",
+    "per_page": 10,
+    "prev_page_url": null,
+    "to": 9,
+}
+```
+For example porpouses, we will show only what is returned inside "data". The routes are:
+
+- `/api/salePoints`: Considering default pagination above, returns in `data` the sale points created. The returned fields are `idSalePoints` (integer), `salePointName` (string), `description` (string), `isActive`(integer [0 | 1]).
+```json
+{
+    // ...
     "data": [
         {
+            "isActive": 1,
             "idSalePoints": 1,
             "salePointName": "First Sale Point",
             "description": "I'm the first sale point",
-            "isActive": 1,
+            "idUsersCreation": 2,
+            "userCreationName": "Mateus Neri",
+            "idUsersLastUpdate": 2,
+            "userUpdateName": "Mateus Neri",
+            "createdAt": "2023-02-03 01:18:06",
+            "updatedAt": "2023-03-30 20:19:40"
         },
         {
+            "isActive": 0,
             "idSalePoints": 2,
             "salePointName": "Another Sale Point (But Deactivated)",
             "description": "I'm another sale point",
-            "isActive": 0,
+            "idUsersCreation": 2,
+            "userCreationName": "Mateus Neri",
+            "idUsersLastUpdate": 2,
+            "userUpdateName": "Mateus Neri",
+            "createdAt": "2023-02-03 01:18:06",
+            "updatedAt": "2023-03-30 20:19:40"
         },
-    ]
+    ],
+    // ...
 }
 ```
 
 
-- `/api/clients`: Returns in `data` the clients created. The returned fields are `idClients` (integer), `clientName` (string), `idSalePoints`(integer), `isActive`(integer [0 | 1]).
+- `/api/clients`: Considering default pagination above, returns in `data` the clients created. The returned fields are `idClients` (integer), `clientName` (string), `idSalePoints`(integer), `isActive`(integer [0 | 1]).
 ```json
 {
-    "msg": "",
-    "dev": "",
-    "type": "",
+    // ...
     "data": [
         {
+            "isActive": 0,
             "idClients": 1,
             "clientName": "James 'The Crazy' Borg",
             "idSalePoints": 1,
-            "isActive": 0,
+            "salePointName": "First Sale Point",
+            "idUsersCreation": 3,
+            "userCreationName": "Laissi Vedovato",
+            "idUsersLastUpdate": 3,
+            "userUpdateName": "Laissi Vedovato",
+            "createdAt": "2023-03-30 21:02:56",
+            "updatedAt": "2023-03-30 21:33:21"
         },
         {
+            "isActive": 1,
             "idClients": 2,
             "clientName": "Maryanne Foster",
             "idSalePoints": 1,
-            "isActive": 1,
+            "salePointName": "First Sale Point",
+            "idUsersCreation": 3,
+            "userCreationName": "Laissi Vedovato",
+            "idUsersLastUpdate": 3,
+            "userUpdateName": "Laissi Vedovato",
+            "createdAt": "2023-03-30 21:02:56",
+            "updatedAt": "2023-03-30 21:33:21"
         },
-    ]
+    ],
+    // ...
 }
 ```
-- `/api/products`: Returns in `data` the products created. The returned fields are `idProducts` (integer), `productName` (string), `standardValue`(decimal), `isActive`(integer [0 | 1]).
+- `/api/products`: Considering default pagination above, returns in `data` the products created. The returned fields are `idProducts` (integer), `productName` (string), `standardValue`(decimal), `isActive`(integer [0 | 1]).
 ```json
 {
-    "msg": "",
-    "dev": "",
-    "type": "",
+    // ...
     "data": [
         {
+            "isActive": 0,
             "idProducts": 1,
             "productName": "Dino Toothbrush",
             "standardValue": 52.35,
-            "isActive": 0,
+            "idUsersCreation": 3,
+            "userCreationName": "Laissi Vedovato",
+            "idUsersLastUpdate": 3,
+            "userUpdateName": "Laissi Vedovato",
+            "createdAt": "2023-03-30 21:47:19",
+            "updatedAt": "2023-03-30 21:51:16"
         },
         {
+            "isActive": 1,
             "idProducts": 3,
             "productName": "Gigantic Ornamental Flower",
             "standardValue": 112.50,
-            "isActive": 1,
+            "idUsersCreation": 3,
+            "userCreationName": "Laissi Vedovato",
+            "idUsersLastUpdate": 3,
+            "userUpdateName": "Laissi Vedovato",
+            "createdAt": "2023-03-30 21:47:19",
+            "updatedAt": "2023-03-30 21:51:16"
         },
-    ]
+    ],
+    // ...
 }
 ```
-- `/api/sales`: Returns in `data` the sales created. The returned fields are `idSales` (integer), `idClients` (integer), `idSalePoints` (integer), `deliverDateTime` (datetime), `status` (string [ic: in course | cl: canceled | fs: finished]), `created_at` (laravel datetime), `updated_at` (laravel datetime), `items`(JSON array).
+- `/api/sales`: Considering default pagination above, returns in `data` the sales created. The returned fields are `idSales` (integer), `idClients` (integer), `idSalePoints` (integer), `deliverDateTime` (datetime), `status` (string [ic: in course | cl: canceled | fs: finished]), `created_at` (laravel datetime), `updated_at` (laravel datetime), `items`(JSON array).
     - JSON array `items` contains `idSaleItems` (integer) (starting from 0 for each sale), `idSales` (integer), `idProducts` (integer), `quantity` (decimal), `soldPrice` (decimal), `discountApplied` (decimal).
 ```json
 {
-    "msg": "",
-    "dev": "",
-    "type": "",
+    // ...
     "data": [
-        {
-            "idSales": 1,
-            "idClients": 1,
+       {
+            "idSales": 3,
+            "idClients": 2,
+            "clientName": "Maryanne Foster",
             "idSalePoints": 1,
-            "deliverDateTime": "2022-10-01 14:35:12",
-            "status": "fs",
-            "created_at": "2022-11-27T19:42:25.000000Z",
-            "updated_at": "2022-11-27T21:45:53.000000Z",
+            "salePointName": "First Sale Point",
+            "status": "ic",
+            "idUsersCreation": 2,
+            "userCreationName": "Mateus Neri",
+            "idUsersLastUpdate": 2,
+            "userUpdateName": "Mateus Neri",
+            "createdAt": "2023-04-02 14:40:16",
+            "updatedAt": "2023-04-02 14:40:16",
             "items": [
                 {
                     "idSaleItems": 0,
-                    "idSales": 1,
+                    "idSales": 3,
                     "idProducts": 1,
-                    "quantity": "1.00",
-                    "soldPrice": "12.50",
-                    "discountApplied": "0.00"
-                },
-                {
-                    "idSaleItems": 1,
-                    "idSales": 1,
-                    "idProducts": 2,
-                    "quantity": "4.00",
-                    "soldPrice": "2.50",
-                    "discountApplied": "10.00"
+                    "quantity": "2.00",
+                    "soldPrice": "13.00",
+                    "discountApplied": "0.00",
+                    "created_at": "2023-04-02T14:40:16.000000Z",
+                    "updated_at": "2023-04-02T14:40:16.000000Z"
                 }
             ]
         }
-    ]
+    ],
+    // ...
 }
 ```
+## Pagination and register filtering
+All You can optionally use GET parameters to filter data. The parameters available are:
+- **page** (integer) (default 1);
+- **perPage** (integer) (default 10);
+- **search** (string);
+- **orderBy** (string);
+- **orberByData** (string);
+
 ## Retrieving by ID
-If you use GET with an ID, that corresponds to the primary key of an entity, like idSalePoints, (ie. `/api/salePoints/1`), it will retrieve only the item that matches to it. 
+If you use GET with an ID, that corresponds to the primary key of an entity, like idSalePoints, (ie. `/api/salePoints/1`), it will retrieve only the item that matches to it.
 
 A GET to `/api/sales/1` will result in a JSON array like in the section above but with a single sale data register.
 
 The same is valid for the other routes. Like the following:
 - to `/api/salePoints/312`;
-- to `/api/clients/213`; 
+- to `/api/clients/213`;
 - to `/api/products/231`;
 
 ## Deactivate/Activate registers

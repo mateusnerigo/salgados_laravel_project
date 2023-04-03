@@ -22,7 +22,7 @@ class SalesController extends Controller {
             return $this->show($request->idSales);
         }
 
-        return jsonResponse(data: $this->getAllSales($request));
+        return rawJsonResponse($this->getAllSales($request));
     }
 
     /**
@@ -241,19 +241,17 @@ class SalesController extends Controller {
             new Sales,
             $request,
             [
-                'sales.idSales',
-                'clients.clientName',
-                'sale_points.salePointName',
-                'sales.deliverDateTime',
-                'sales.created_at'
+                'idSales',
+                'clientName',
+                'salePointName',
+                'deliverDateTime',
+                'created_at'
             ]
         );
 
-        if (!empty($sales['data'])) {
-            foreach ($sales['data'] as $index => $sale) {
-                $sales['data'][$index]['items'] = $this->getSaleItemsByIdSales($sale->idSales);
-            }
-        }
+        $sales->each(function ($sale) {
+            $sale['items'] = $this->getSaleItemsByIdSales($sale->idSales);
+        });
 
         return $sales;
     }

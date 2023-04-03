@@ -23,9 +23,9 @@ class SalePointsController extends Controller {
                 new SalePoints,
                 $request,
                 [
-                    'sale_points.idSalePoints',
-                    'sale_points.salePointName',
-                    'sale_points.description'
+                    'idSalePoints',
+                    'salePointName',
+                    'description'
                 ]
             )
         );

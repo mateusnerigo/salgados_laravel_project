@@ -220,6 +220,16 @@
 									"key": "search",
 									"value": "",
 									"disabled": true
+								},
+								{
+									"key": "orderBy",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "orderByType",
+									"value": "",
+									"disabled": true
 								}
 							]
 						}
@@ -338,6 +348,16 @@
 								},
 								{
 									"key": "search",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "orderBy",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "orderByType",
 									"value": "",
 									"disabled": true
 								}
@@ -460,6 +480,16 @@
 									"key": "search",
 									"value": "",
 									"disabled": true
+								},
+								{
+									"key": "orderBy",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "orderByType",
+									"value": "",
+									"disabled": true
 								}
 							]
 						}
@@ -578,6 +608,16 @@
 								},
 								{
 									"key": "search",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "orderBy",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "orderByType",
 									"value": "",
 									"disabled": true
 								}

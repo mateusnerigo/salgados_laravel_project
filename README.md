@@ -383,14 +383,8 @@ A sale can be set to three different status:
 - `cl`: Cancelled (cannot be updated)
 - `fs`: Finished (cannot be updated)
 
-In order to update the status of a sale, it is needed to send a **POST** requisition to the route **/api/sales/updateStatus**. <br>
-The **multipart/form-data body** will need the primary key (idSales) **AND** the new status in its **data** field like the following:
-```json
-{
-    "idSales":1,
-    "status":"cl"
-}
-```
+In order to update the status of a sale, it is needed to send a **GET** requisition to the route **/api/sales/updateStatus** followed by the sale ID and the new status. <br>
+The final route will be something like `/api/sales/updateStatus/3/cl`.
  <hr>
 
  # Thank you! I'm really glad that you're here!

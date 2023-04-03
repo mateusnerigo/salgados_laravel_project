@@ -20,7 +20,7 @@ class Controller extends \Illuminate\Routing\Controller {
         // only AuthController should accept unauthorized access
         if (get_called_class() != 'App\Http\Controllers\AuthController') {
             if (!$this->hasUserAccess()) {
-                throw new UnauthorizedHttpException('teste');
+                throw new UnauthorizedHttpException('');
             }
         }
     }

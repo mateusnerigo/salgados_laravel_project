@@ -60,9 +60,16 @@ class Controller extends \Illuminate\Routing\Controller {
             $query->orderBy($request->orderBy, $orderByType);
         }
 
-        return $query
+        $paginatedResults = $query
             ->selectReturnWithRelationFields()
             ->paginate($perPage);
+
+        return collect([
+            'search'        => $request->search,
+            'columns_order' => $columnsToSearch,
+            'order_by'      => $request->orderBy,
+            'order_by_type' => $request->orderByType,
+        ])->merge($paginatedResults);
     }
 
     /**
